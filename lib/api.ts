@@ -23,37 +23,21 @@ class ApiError extends Error {
 }
 
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-  const url = `${API_BASE_URL}${endpoint}`
-  console.log('API Request:', { url, options })
-
+  const url = `${API_BASE_URL}${endpoint}`;
   let headers: HeadersInit = {}
-  
-  // Only fetch session if we're in the browser
+
+  // Always set Authorization header if user_token is present
   if (typeof window !== 'undefined') {
-    try {
-      const sessionResponse = await fetch('/api/auth/session')
-      if (!sessionResponse.ok) {
-        console.error('Failed to fetch session:', await sessionResponse.text())
-      } else {
-        const session = await sessionResponse.json()
-        
-        // For admin endpoints, use admin token if available, otherwise use user token
-        if (endpoint.includes("/admin/")) {
-          const adminToken = localStorage?.getItem("admin_token")
-          if (adminToken) {
-            headers.Authorization = `Bearer ${adminToken}`
-          } else if (session?.accessToken) {
-            headers.Authorization = `Bearer ${session.accessToken}`
-          }
-        } 
-        // For regular endpoints, use the user token if available
-        else if (session?.accessToken) {
-          headers.Authorization = `Bearer ${session.accessToken}`
-        }
+    const userToken = localStorage?.getItem("user_token");
+    if (userToken) {
+      headers.Authorization = `Bearer ${userToken}`;
+    }
+    // For admin endpoints, use admin token if available
+    if (endpoint.includes("/admin/")) {
+      const adminToken = localStorage?.getItem("admin_token");
+      if (adminToken) {
+        headers.Authorization = `Bearer ${adminToken}`;
       }
-    } catch (error) {
-      console.error('Error getting session:', error)
-      // Continue without session if there's an error
     }
   }
 
@@ -63,65 +47,38 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     headers["Content-Type"] = "application/json";
   }
 
-  // Merge any custom headers passed in options
-  headers = { ...headers, ...(options.headers || {}) };
+  // Merge any custom headers passed in options, but do not overwrite Authorization
+  headers = { ...options.headers, ...headers };
 
   const config: RequestInit = {
     ...options,
     headers,
+    // Remove credentials: 'include' to ensure Authorization header is sent for CORS
+  }
+
+  // Debug log: print headers before fetch
+  if (typeof window !== 'undefined') {
+    console.log('apiRequest headers:', headers);
   }
 
   try {
-    console.log('Sending request with config:', { url, ...config })
-    const response = await fetch(url, config)
-    
-    let data: any
-    try {
-      data = await response.json()
-    } catch (jsonError) {
-      console.error('Failed to parse JSON response:', jsonError)
-      throw new ApiError(
-        { 
-          success: false, 
-          message: `Invalid JSON response from server: ${await response.text()}` 
-        }, 
-        response.status
-      )
-    }
-
-    console.log('API Response:', { url, status: response.status, data })
+    let response: Response;
+    let responseData: any;
+    response = await fetch(url, config);
+    responseData = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new ApiError(
-        data || { success: false, message: `HTTP error ${response.status}` }, 
+        responseData || { success: false, message: `HTTP error ${response.status}` }, 
         response.status
       )
     }
 
-    return data as ApiResponse<T>
+    return responseData as ApiResponse<T>
   } catch (error) {
-    console.error('API Request Failed:', { 
-      url, 
-      error,
-      isApiError: error instanceof ApiError
-    })
-    
     if (error instanceof ApiError) {
       throw error
     }
-    
-    // Handle network errors
-    if (error instanceof TypeError) {
-      // This is typically a network error
-      throw new ApiError(
-        { 
-          success: false, 
-          message: "Unable to connect to the server. Please check your internet connection." 
-        }, 
-        0
-      )
-    }
-    
     throw new ApiError(
       { 
         success: false, 

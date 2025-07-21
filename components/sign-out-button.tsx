@@ -1,17 +1,16 @@
 "use client";
 
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export function SignOutButton() {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await signOut({
-      redirect: false,
-      callbackUrl: "/login"
-    });
-    router.push("/login");
+    localStorage.removeItem('user_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    router.push('/login');
     router.refresh();
   };
 

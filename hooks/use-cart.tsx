@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import { apiClient } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 
@@ -39,10 +38,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       console.log('Fetching cart items...');
-      const response = await apiClient.get<any[]>('/cart/');
+      const response = await apiClient.get<any>('/cart/');
       console.log('Cart items received:', response);
       
-      const cartItems = response.map((item: any) => ({
+      const cartItems = (response.data || []).map((item: any) => ({
         id: item.id.toString(),
         note_id: item.note_id,
         title: item.note?.title || item.title || "Unknown Note",
@@ -76,25 +75,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const { data: session, status } = useSession()
-
+  // Use localStorage to check if user is authenticated
   useEffect(() => {
-    // Only fetch cart if user is authenticated
-    if (status === 'authenticated') {
-      refreshCart().catch(error => {
-        // Handle specific error cases if needed
-        console.error('Error in cart refresh effect:', error);
-      });
-    } else if (status === 'unauthenticated') {
-      // Clear cart when user logs out
-      setItems([]);
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('user_token');
+      if (token) {
+        refreshCart().catch(error => {
+          console.error('Error in cart refresh effect:', error);
+        });
+      } else {
+        setItems([]);
+      }
     }
-    
     // Cleanup function to cancel any pending requests
     return () => {
       // You could add request cancellation logic here if needed
     };
-  }, [status])
+  }, [])
 
   const addItem = async (item: { id: string; title: string; price: number; image: string }) => {
     setIsLoading(true)

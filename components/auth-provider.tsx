@@ -17,14 +17,5 @@ declare module "next-auth" {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Add any global auth state or effects here if needed
-  
-  return (
-    <SessionProvider 
-      refetchInterval={5 * 60} // Refetch session every 5 minutes
-      refetchOnWindowFocus={true}
-    >
-      {children}
-    </SessionProvider>
-  );
+  return <>{children}</>;
 }

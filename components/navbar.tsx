@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -13,10 +12,19 @@ import { SignOutButton } from "./sign-out-button"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const { data: session, status } = useSession()
   const { items } = useCart()
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
-  const isLoading = status === "loading"
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('user_token')
+      const userData = localStorage.getItem('user')
+      setIsLoggedIn(!!token)
+      setUser(userData ? JSON.parse(userData) : null)
+    }
+  }, [])
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -67,19 +75,17 @@ export function Navbar() {
             </Button>
 
             {/* User Login/Logout Button */}
-            {isLoading ? (
-              <div className="h-9 w-20 animate-pulse rounded-md bg-gray-200"></div>
-            ) : session ? (
+            {isLoggedIn ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={session.user?.image || ''} alt={session.user?.name || 'User'} />
+                    <AvatarImage src={user?.image || ''} alt={user?.name || 'User'} />
                     <AvatarFallback>
-                      {session.user?.name?.charAt(0) || <User className="h-4 w-4" />}
+                      {user?.name?.charAt(0) || <User className="h-4 w-4" />}
                     </AvatarFallback>
                   </Avatar>
                   <span className="hidden md:inline text-sm font-medium">
-                    {session.user?.name || session.user?.email?.split('@')[0]}
+                    {user?.name || user?.email?.split('@')[0]}
                   </span>
                 </div>
                 <SignOutButton />
