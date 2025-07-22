@@ -128,21 +128,12 @@ export const cartApi = {
   },
   
   // Add item to cart
-  addItem: async (noteId: number, quantity = 1): Promise<ApiResponse<any>> => {
+  addItem: async (noteId: number): Promise<ApiResponse<any>> => {
     return apiRequest("/cart", {
       method: "POST",
       body: JSON.stringify({
         note_id: noteId,
-        quantity,
       }),
-    });
-  },
-
-  // Update item quantity
-  updateItem: async (itemId: number, quantity: number): Promise<ApiResponse<any>> => {
-    return apiRequest(`/cart/${itemId}`, {
-      method: "PUT",
-      body: JSON.stringify({ quantity }),
     });
   },
 
@@ -205,9 +196,9 @@ export const adminApi = {
   updateNote: (id: number, updates: any) => {
     const isFormData = updates instanceof FormData;
     return apiRequest(`/admin/notes/${id}`, {
-      method: "PUT",
+      method: isFormData ? "POST" : "PUT",
       body: isFormData ? updates : JSON.stringify(updates),
-      headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+      headers: isFormData ? {} : undefined,
     });
   },
 

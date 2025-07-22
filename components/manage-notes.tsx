@@ -145,49 +145,61 @@ export function ManageNotes() {
     })
   }
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!editingNote) return
-
-    setIsUpdating(true)
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingNote) return;
+    setIsUpdating(true);
     try {
-      const updateData = {
-        title: editFormData.title,
-        description: editFormData.description,
-        subject: editFormData.subject,
-        price: parseFloat(editFormData.price),
-        tags: editFormData.tags.split(",").map(tag => tag.trim()).filter(tag => tag),
+      const formData = new FormData(e.currentTarget);
+      formData.set("title", editFormData.title);
+      formData.set("description", editFormData.description);
+      formData.set("subject", editFormData.subject);
+      formData.set("price", editFormData.price);
+      formData.set("tags", editFormData.tags);
+      // Only append files if selected
+      const pdfInput = e.currentTarget.elements.namedItem("note_file") as HTMLInputElement;
+      if (pdfInput && pdfInput.files && pdfInput.files[0]) {
+        formData.set("note_file", pdfInput.files[0]);
       }
-
-      const response = await adminApi.updateNote(editingNote.id, updateData)
-      
+      const previewInput = e.currentTarget.elements.namedItem("preview_image") as HTMLInputElement;
+      if (previewInput && previewInput.files && previewInput.files[0]) {
+        formData.set("preview_image", previewInput.files[0]);
+      }
+      const response = await adminApi.updateNote(editingNote.id, formData);
       if (response.success) {
-        // Update the notes list with the updated note
-        setNotes(notes.map(note => 
-          note.id === editingNote.id 
-            ? { ...note, ...updateData }
-            : note
-        ))
-        
-        setEditModalOpen(false)
-        setEditingNote(null)
-        
+        setNotes(notes.map(note => {
+          if (note.id === editingNote.id) {
+            // Preserve file-related properties
+            return {
+              ...note,
+              ...editFormData,
+              file_url: note.file_url,
+              file: note.file,
+              file_name: note.file_name,
+              filename: note.filename,
+              preview: note.preview,
+            };
+          }
+          return note;
+        }));
+        setEditModalOpen(false);
+        setEditingNote(null);
         toast({
           title: "Note updated",
           description: "The note has been successfully updated.",
-        })
+        });
       } else {
-        throw new Error(response.message || "Failed to update note")
+        throw new Error(response.message || "Failed to update note");
       }
     } catch (error: any) {
-      console.error("Failed to update note:", error)
+      console.error("Failed to update note:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update note. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
   }
 
@@ -508,6 +520,46 @@ export function ManageNotes() {
                 value={editFormData.tags}
                 onChange={handleEditFormChange}
                 placeholder="calculus, derivatives, integrals"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="edit-pdf">Note File (PDF)</Label>
+              {(() => {
+                const filePath =
+                  editingNote?.file_url ||
+                  editingNote?.file_name ||
+                  editingNote?.filename ||
+                  (editingNote?.file && (editingNote.file.url || editingNote.file.name));
+                return typeof filePath === 'string' && filePath
+                  ? (
+                    <div className="mb-2 text-sm text-gray-600">
+                      Current file: {filePath.split('/').pop()}
+                    </div>
+                  )
+                  : null;
+              })()}
+              <Input
+                id="edit-pdf"
+                name="note_file"
+                type="file"
+                accept="application/pdf"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-preview-image">Preview Image</Label>
+              {editingNote?.preview && (
+                <div className="mb-2 text-sm text-gray-600">
+                  Current image: {editingNote.preview.split('/').pop()}
+                </div>
+              )}
+              <Input
+                id="edit-preview-image"
+                name="preview_image"
+                type="file"
+                accept="image/*"
               />
             </div>
           </div>

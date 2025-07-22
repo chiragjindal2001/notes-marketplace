@@ -49,14 +49,12 @@ export interface OrderItem {
   note_id: number
   title: string
   price: number
-  quantity: number
 }
 
 export interface CartItem {
   id: number
   session_id: string
   note_id: number
-  quantity: number
   created_at: string
 }
 

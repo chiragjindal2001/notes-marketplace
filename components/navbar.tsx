@@ -13,7 +13,7 @@ import { SignOutButton } from "./sign-out-button"
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { items } = useCart()
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  const itemCount = items.length
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<any>(null)
 

@@ -10,7 +10,6 @@ interface CartItem {
   note_id: number
   title: string
   price: number
-  quantity: number
   image: string
 }
 
@@ -18,7 +17,6 @@ interface CartContextType {
   items: CartItem[]
   addItem: (item: { id: string; title: string; price: number; image: string }) => Promise<void>
   removeItem: (id: string) => Promise<void>
-  updateQuantity: (id: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
   getTotal: () => number
   isLoading: boolean
@@ -44,10 +42,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const cartItems = (response.data || []).map((item: any) => ({
         id: item.id.toString(),
         note_id: item.note_id,
-        title: item.note?.title || item.title || "Unknown Note",
-        price: item.note?.price || item.price || 0,
-        quantity: item.quantity,
-        image: item.note?.preview_image || item.image || "/placeholder.svg",
+        title: item.title || "Unknown Note",
+        price: Number(item.price) || 0,
+        image: item.preview_image
+          ? item.preview_image.startsWith('http')
+            ? item.preview_image
+            : `http://localhost:8080${item.preview_image}`
+          : "/placeholder.svg",
       }));
       
       setItems(cartItems);
@@ -94,11 +95,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const addItem = async (item: { id: string; title: string; price: number; image: string }) => {
+    // Prevent adding duplicate items
+    if (items.some((cartItem) => cartItem.id === item.id)) {
+      toast({
+        title: "Already in cart",
+        description: `${item.title} is already in your cart.`,
+      })
+      return
+    }
     setIsLoading(true)
     try {
       await apiClient.post('/cart/', {
-        note_id: Number(item.id),
-        quantity: 1
+        note_id: Number(item.id)
       })
       await refreshCart()
       toast({
@@ -134,24 +142,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const updateQuantity = async (id: string, quantity: number) => {
-    if (quantity < 1) return removeItem(id)
-    
-    setIsLoading(true)
-    try {
-      await apiClient.put(`/cart/${id}`, { quantity })
-      await refreshCart()
-    } catch (error) {
-      console.error("Failed to update cart item:", error)
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update cart item",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // updateQuantity removed
 
   const clearCart = async () => {
     setIsLoading(true)
@@ -175,7 +166,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getTotal = () => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0)
+    return items.reduce((total, item) => total + item.price, 0)
   }
 
   return (
@@ -184,7 +175,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items,
         addItem,
         removeItem,
-        updateQuantity,
         clearCart,
         getTotal,
         isLoading,

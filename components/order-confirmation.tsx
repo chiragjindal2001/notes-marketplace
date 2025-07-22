@@ -13,7 +13,6 @@ interface OrderConfirmationProps {
     items: Array<{
       title: string
       price: number
-      quantity: number
     }>
   }
 }
@@ -47,9 +46,8 @@ export function OrderConfirmation({ orderData }: OrderConfirmationProps) {
               <div key={index} className="flex justify-between items-center py-2 border-b">
                 <div>
                   <p className="font-medium">{item.title}</p>
-                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                 </div>
-                <span className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-semibold">₹{item.price.toFixed(2)}</span>
               </div>
             ))}
             <div className="flex justify-between items-center pt-2 font-bold text-lg">

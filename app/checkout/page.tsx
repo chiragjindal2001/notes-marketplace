@@ -27,12 +27,7 @@ export default function CheckoutPage() {
     email: "",
     firstName: "",
     lastName: "",
-    phone: "",
-    billingAddress: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "IN",
+    phone: ""
   })
 
   const [orderData, setOrderData] = useState<any>(null)
@@ -61,22 +56,14 @@ export default function CheckoutPage() {
     try {
       const response = await checkoutApi.createOrder({
         items: items.map((item) => ({
-          note_id: item.id,
-          quantity: item.quantity,
+          note_id: item.note_id
         })),
         customer_info: {
           email: formData.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
           phone: formData.phone,
-        },
-        billing_address: {
-          address: formData.billingAddress,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode,
-          country: formData.country,
-        },
+        }
       })
 
       if (response.success && response.data) {
@@ -225,64 +212,7 @@ export default function CheckoutPage() {
               </Card>
 
               {/* Billing Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Billing Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="billingAddress">Address *</Label>
-                    <Input
-                      id="billingAddress"
-                      name="billingAddress"
-                      required
-                      value={formData.billingAddress}
-                      onChange={handleInputChange}
-                      placeholder="123 Main Street, Apartment 4B"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        required
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        placeholder="Mumbai"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State *</Label>
-                      <Input
-                        id="state"
-                        name="state"
-                        required
-                        value={formData.state}
-                        onChange={handleInputChange}
-                        placeholder="Maharashtra"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="zipCode">PIN Code *</Label>
-                    <Input
-                      id="zipCode"
-                      name="zipCode"
-                      required
-                      value={formData.zipCode}
-                      onChange={handleInputChange}
-                      placeholder="400001"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              {/* (Removed the entire Billing Information Card section) */}
 
               {showRazorpay && orderData ? (
                 <RazorpayCheckout orderData={orderData} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />
@@ -323,8 +253,7 @@ export default function CheckoutPage() {
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{item.title}</h4>
                       <div className="flex justify-between items-center mt-1">
-                        <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
-                        <span className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="font-semibold">₹{item.price.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

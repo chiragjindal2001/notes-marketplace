@@ -115,6 +115,9 @@ export class ApiClient {
       headers.set('Authorization', `Bearer ${this.accessToken}`);
     }
 
+    // Debug: log all request headers
+    console.log('Request headers:', Array.from(headers.entries()));
+
     // Configure request with CORS settings
     const config: RequestInit = {
       method,

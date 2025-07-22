@@ -10,7 +10,7 @@ import Link from "next/link"
 import { useCart } from "@/hooks/use-cart"
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotal } = useCart()
+  const { items, removeItem, getTotal } = useCart()
 
   if (items.length === 0) {
     return (
@@ -56,24 +56,8 @@ export default function CartPage() {
                       <p className="text-2xl font-bold text-blue-600 mb-4">₹{item.price.toFixed(2)}</p>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-
+                        {/* Quantity controls removed */}
+                        <div />
                         <Button
                           variant="ghost"
                           size="sm"
