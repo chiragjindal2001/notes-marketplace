@@ -49,6 +49,11 @@ export function Navbar() {
                 {item.name}
               </Link>
             ))}
+            {isLoggedIn && (
+              <Link href="/my-notes" className="text-gray-700 hover:text-blue-600 transition-colors">
+                My Notes
+              </Link>
+            )}
           </div>
 
           {/* Right side buttons */}
@@ -64,13 +69,6 @@ export function Navbar() {
                     {itemCount}
                   </Badge>
                 )}
-              </Link>
-            </Button>
-
-            <Button asChild variant="outline" size="sm">
-              <Link href="/admin">
-                <User className="h-4 w-4 mr-2" />
-                Admin
               </Link>
             </Button>
 
@@ -118,6 +116,15 @@ export function Navbar() {
                       {item.name}
                     </Link>
                   ))}
+                  {isLoggedIn && (
+                    <Link
+                      href="/my-notes"
+                      className="text-lg font-medium"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      My Notes
+                    </Link>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>

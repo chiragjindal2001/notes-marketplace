@@ -24,7 +24,8 @@ export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("All")
   const [sortBy, setSortBy] = useState("popular")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  // Remove viewMode state and toggle
+  // const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const { addItem } = useCart()
   const [page, setPage] = useState(1)
 
@@ -135,20 +136,6 @@ export default function BrowsePage() {
             </Select>
 
             <div className="flex gap-2">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
             </div>
           </div>
 
@@ -174,38 +161,36 @@ export default function BrowsePage() {
         )}
 
         {/* Notes Grid/List */}
-        <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array.isArray(filteredNotes) && filteredNotes.map((note, idx) => (
             <Card
               key={note.id}
-              className={`hover:shadow-lg transition-shadow ${viewMode === "list" ? "flex flex-row" : ""}`}
+              className="hover:shadow-lg transition-shadow w-[240px] mx-auto"
             >
-              <CardHeader className={`p-0 ${viewMode === "list" ? "w-48 flex-shrink-0" : ""}`}>
+              <CardHeader className="p-0">
                 <Image
                   src={
-  note.preview_image
-    ? (note.preview_image.startsWith('/uploads/')
-        ? BACKEND_URL + note.preview_image
-        : note.preview_image)
-    : "/placeholder.svg"
-}
+                    note.preview_image
+                      ? (note.preview_image.startsWith('/uploads/')
+                        ? BACKEND_URL + note.preview_image
+                        : note.preview_image)
+                      : "/placeholder.svg"
+                  }
                   alt={note.title}
-                  width={300}
-                  height={200}
-                  className={`object-cover ${
-                    viewMode === "list" ? "w-full h-full rounded-l-lg" : "w-full h-48 rounded-t-lg"
-                  }`}
+                  width={240}
+                  height={160}
+                  className="object-cover w-full h-[120px] rounded-t-lg"
                   priority={idx === 0}
                 />
               </CardHeader>
-              <CardContent className={`p-6 ${viewMode === "list" ? "flex-1" : ""}`}>
+              <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-2">
                   <Badge variant="outline">{note.subject}</Badge>
                   <span className="font-semibold text-lg text-blue-600">₹{note.price}</span>
                 </div>
 
-                <CardTitle className="mb-2">{note.title}</CardTitle>
-                <p className="text-gray-600 text-sm mb-4">{note.description}</p>
+                <CardTitle className="mb-2 line-clamp-2 text-base md:text-lg truncate">{note.title}</CardTitle>
+                <p className="text-gray-600 text-xs md:text-sm mb-4 line-clamp-2 truncate">{note.description}</p>
 
                 <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                   <span className="flex items-center gap-1">
@@ -219,10 +204,10 @@ export default function BrowsePage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button asChild variant="outline" className="flex-1 bg-transparent">
+                  <Button asChild variant="outline" className="flex-1 bg-transparent px-2 py-1 text-xs h-8">
                     <Link href={`/notes/${note.id}`}>View Details</Link>
                   </Button>
-                  <Button onClick={() => handleAddToCart(note)} className="flex-1">
+                  <Button onClick={() => handleAddToCart(note)} className="flex-1 px-2 py-1 text-xs h-8">
                     Add to Cart
                   </Button>
                 </div>

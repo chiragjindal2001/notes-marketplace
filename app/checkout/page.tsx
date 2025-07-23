@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import { RazorpayCheckout } from "@/components/razorpay-checkout"
 import { PaymentMethods } from "@/components/payment-methods"
 import type { RazorpayResponse } from "@/lib/razorpay-client"
 import { checkoutApi } from "@/lib/api"
+import { loadRazorpayScript } from "@/lib/razorpay-client";
 
 export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCart()
@@ -33,6 +34,10 @@ export default function CheckoutPage() {
   const [orderData, setOrderData] = useState<any>(null)
   const [showRazorpay, setShowRazorpay] = useState(false)
 
+  useEffect(() => {
+    loadRazorpayScript();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -40,14 +45,14 @@ export default function CheckoutPage() {
     })
   }
 
+  // Remove GST calculation
   const calculateTotals = () => {
     const subtotal = getTotal()
-    const gst = subtotal * 0.18 // 18% GST
-    const total = subtotal + gst
-    return { subtotal, gst, total }
+    const total = subtotal
+    return { subtotal, total }
   }
 
-  const { subtotal, gst, total } = calculateTotals()
+  const { subtotal, total } = calculateTotals()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -266,10 +271,7 @@ export default function CheckoutPage() {
                     <span>Subtotal</span>
                     <span>₹{subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>GST (18%)</span>
-                    <span>₹{gst.toFixed(2)}</span>
-                  </div>
+                  {/* Remove GST row */}
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
                     <span>₹{total.toFixed(2)}</span>

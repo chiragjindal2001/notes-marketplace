@@ -22,10 +22,12 @@ interface RazorpayCheckoutProps {
 }
 
 export function RazorpayCheckout({ orderData, onSuccess, onError }: RazorpayCheckoutProps) {
+  console.log('[RazorpayCheckout] Rendered with orderData:', orderData);
   const [isProcessing, setIsProcessing] = useState(false)
   const { toast } = useToast()
 
   const handlePayment = async () => {
+    console.log('[RazorpayCheckout] handlePayment called, orderData:', orderData);
     setIsProcessing(true)
 
     try {

@@ -147,7 +147,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = async () => {
     setIsLoading(true)
     try {
-      await apiClient.delete('/cart/clear')
+      await apiClient.delete('/cart')
       setItems([])
       toast({
         title: "Success",

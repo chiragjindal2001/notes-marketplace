@@ -29,7 +29,14 @@ export interface BadgeProps
 
 function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div
+      className={cn(
+        badgeVariants({ variant }),
+        "max-w-[120px] truncate overflow-hidden text-ellipsis", // Add max-width and text overflow handling
+        className
+      )}
+      {...props}
+    />
   )
 }
 
