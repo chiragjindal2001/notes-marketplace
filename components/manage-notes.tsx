@@ -258,6 +258,29 @@ export function ManageNotes() {
     }
   }
 
+  // Add handler for toggling is_active (restore/soft-delete)
+  const handleToggleActive = async (id: number, isActive: boolean) => {
+    try {
+      // Call backend to update is_active
+      const response = await adminApi.updateNote(id, { is_active: !isActive });
+      if (response.success) {
+        setNotes(notes.map(note => note.id === id ? { ...note, is_active: !isActive } : note));
+        toast({
+          title: !isActive ? "Note restored" : "Note deactivated",
+          description: !isActive ? "The note has been restored and is now active." : "The note has been deactivated (soft deleted).",
+        });
+      } else {
+        throw new Error(response.message || "Failed to update note status");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update note status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Card>
@@ -298,7 +321,7 @@ export function ManageNotes() {
                 </TableRow>
               )}
               {filteredNotes.map((note) => (
-                <TableRow key={note.id}>
+                <TableRow key={note.id} className={note.is_active === false ? "opacity-60" : ""}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Image
@@ -338,6 +361,9 @@ export function ManageNotes() {
                     >
                       {note.status}
                     </Badge>
+                    {note.is_active === false && (
+                      <Badge variant="destructive" className="ml-2">Inactive</Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -350,10 +376,10 @@ export function ManageNotes() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(note.id)}
-                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handleToggleActive(note.id, note.is_active)}
+                        className={note.is_active ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {note.is_active ? <Trash2 className="h-4 w-4" /> : <span className="font-bold">↺</span>}
                       </Button>
                     </div>
                   </TableCell>

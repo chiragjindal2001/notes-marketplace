@@ -4,12 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Download, Mail, Clock } from "lucide-react"
 import Link from "next/link"
+import { LoadingLink } from "@/components/ui/loading-link"
 
 interface OrderConfirmationProps {
   orderData: {
     order_id: string
     customer_email: string
     total_amount: number
+    status: string
+    created_at: string
     items: Array<{
       title: string
       price: number
@@ -27,6 +30,15 @@ export function OrderConfirmation({ orderData }: OrderConfirmationProps) {
           </div>
           <CardTitle className="text-2xl text-green-600">Payment Successful!</CardTitle>
           <p className="text-gray-600">Order #{orderData.order_id}</p>
+          <p className="text-sm text-gray-500">
+            {new Date(orderData.created_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </p>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -85,13 +97,13 @@ export function OrderConfirmation({ orderData }: OrderConfirmationProps) {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Button asChild className="flex-1">
-              <Link href="/browse">
+              <LoadingLink href="/browse">
                 <Download className="h-4 w-4 mr-2" />
                 Browse More Notes
-              </Link>
+              </LoadingLink>
             </Button>
             <Button asChild variant="outline" className="flex-1 bg-transparent">
-              <Link href="/contact">Contact Support</Link>
+              <LoadingLink href="/my-notes">My Notes</LoadingLink>
             </Button>
           </div>
         </CardContent>

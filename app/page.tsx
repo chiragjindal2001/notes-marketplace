@@ -5,11 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Download, Star, Users, Award, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { LoadingLink } from "@/components/ui/loading-link"
 import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useEffect, useState } from "react"
 import { notesApi } from "@/lib/api"
+import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
+import { logAuthStatus, checkAuthStatus } from "@/lib/auth-utils"
 
 // Mock data - replace with actual data from your database
 // const featuredNotes = [
@@ -57,6 +60,94 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Handle Google OAuth callback
+    const handleGoogleCallback = () => {
+      console.log('🔍 Google OAuth Callback Check:');
+      console.log('Full URL:', window.location.href);
+      console.log('Search params:', window.location.search);
+      
+      // Parse URL parameters manually to handle encoding issues
+      const searchParams = window.location.search.substring(1); // Remove the '?'
+      const params = new URLSearchParams(searchParams);
+      
+      let token = params.get('token');
+      let user = params.get('user');
+      
+      console.log('Raw URL Parameters:', { token: token ? 'Present' : 'Missing', user: user ? 'Present' : 'Missing' });
+      console.log('Current localStorage user_token:', localStorage.getItem('user_token'));
+      
+      // Decode URL-encoded parameters
+      if (token) {
+        try {
+          token = decodeURIComponent(token);
+          console.log('✅ Token decoded successfully');
+          console.log('Token starts with:', token.substring(0, 20) + '...');
+        } catch (error) {
+          console.error('❌ Error decoding token:', error);
+        }
+      }
+      
+      if (user) {
+        try {
+          user = decodeURIComponent(user);
+          console.log('✅ User data decoded successfully');
+          console.log('User data starts with:', user.substring(0, 50) + '...');
+        } catch (error) {
+          console.error('❌ Error decoding user data:', error);
+        }
+      }
+      
+      console.log('Decoded URL Parameters:', { token: token ? 'Present' : 'Missing', user: user ? 'Present' : 'Missing' });
+      
+      if (token && user) {
+        try {
+          // Parse user data if it's JSON
+          let parsedUser = user;
+          try {
+            parsedUser = JSON.parse(user);
+          } catch (e) {
+            // If not JSON, use as is
+            console.log('User data is not JSON, using as string');
+          }
+          
+          // Store the token and user data
+          localStorage.setItem('user_token', token);
+          localStorage.setItem('user', typeof parsedUser === 'string' ? parsedUser : JSON.stringify(parsedUser));
+          
+          // Clear the URL parameters
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          // Verify token was stored
+          const storedToken = localStorage.getItem('user_token');
+          const storedUser = localStorage.getItem('user');
+          
+          console.log('✅ Google OAuth login successful');
+          console.log('✅ Token stored:', storedToken ? 'Yes' : 'No');
+          console.log('✅ User data stored:', storedUser ? 'Yes' : 'No');
+          console.log('✅ Token length:', storedToken?.length || 0);
+          console.log('✅ Token starts with:', storedToken?.substring(0, 20) + '...');
+          
+          // Show success message to user
+          alert('Google login successful! Token has been stored.');
+          
+        } catch (error) {
+          console.error('❌ Error handling Google OAuth callback:', error);
+          alert('Error during Google login: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        }
+      } else {
+        console.log('ℹ️ No Google OAuth parameters found in URL');
+        console.log('Full URL:', window.location.href);
+        console.log('Search params:', window.location.search);
+      }
+    };
+
+    // Handle Google OAuth callback first
+    handleGoogleCallback();
+
+    // Log authentication status after handling callback
+    console.log('📊 Post-callback authentication status:');
+    logAuthStatus();
+
     const fetchData = async () => {
       try {
         // Fetch featured notes
@@ -65,7 +156,8 @@ export default function HomePage() {
           sort: "popular",
         })
         if (notesResponse.success && notesResponse.data) {
-          setFeaturedNotes(Array.isArray(notesResponse.data.items) ? notesResponse.data.items : notesResponse.data)
+          const notes = Array.isArray(notesResponse.data.items) ? notesResponse.data.items : notesResponse.data;
+          setFeaturedNotes(Array.isArray(notes) ? notes : []);
         }
 
         // Fetch subjects
@@ -82,6 +174,10 @@ export default function HomePage() {
 
     fetchData()
   }, [])
+
+  if (loading) {
+    return <LoadingPage text="Loading..." />
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -105,12 +201,9 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button asChild size="lg" className="text-lg px-8">
-              <Link href="/browse">
+              <LoadingLink href="/browse">
                 Browse Notes <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 bg-transparent">
-              Learn More
+              </LoadingLink>
             </Button>
           </div>
 
@@ -228,7 +321,7 @@ export default function HomePage() {
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-blue-600">₹{note.price}</span>
                       <Button asChild>
-                        <Link href={`/notes/${note.id}`}>View Details</Link>
+                        <LoadingLink href={`/notes/${note.id}`}>View Details</LoadingLink>
                       </Button>
                     </div>
                   </CardContent>
@@ -239,33 +332,13 @@ export default function HomePage() {
 
           <div className="text-center mt-12">
             <Button asChild variant="outline" size="lg">
-              <Link href="/browse">View All Notes</Link>
+              <LoadingLink href="/browse">View All Notes</LoadingLink>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Subjects */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Browse by Subject</h2>
-            <p className="text-gray-600">Find notes for your specific area of study</p>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {subjects.map((subject) => (
-              <Link key={subject.name} href={`/browse?subject=${subject.name.toLowerCase()}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer text-center p-6">
-                  <div className="text-3xl mb-2">{subject.icon}</div>
-                  <h3 className="font-semibold mb-1">{subject.name}</h3>
-                  <p className="text-sm text-gray-600">{subject.count} notes</p>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
@@ -276,7 +349,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" variant="secondary">
-              <Link href="/browse">Start Browsing</Link>
+              <LoadingLink href="/browse">Start Browsing</LoadingLink>
             </Button>
             <Button
               asChild
@@ -284,7 +357,7 @@ export default function HomePage() {
               variant="outline"
               className="text-white border-white hover:bg-white hover:text-blue-600 bg-transparent"
             >
-              <Link href="/contact">Contact Us</Link>
+              <LoadingLink href="/contact">Contact Us</LoadingLink>
             </Button>
           </div>
         </div>

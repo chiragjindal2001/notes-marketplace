@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { LoadingLink } from "@/components/ui/loading-link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, ShoppingCart, BookOpen, User, LogOut } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
 import { SignOutButton } from "./sign-out-button"
+import { logAuthStatus } from "@/lib/auth-utils"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,6 +19,7 @@ export function Navbar() {
   const itemCount = items.length
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -29,37 +33,58 @@ export function Navbar() {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Browse Notes", href: "/browse" },
-    { name: "Contact", href: "/contact" },
   ]
+
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/"
+    }
+    return pathname.startsWith(href)
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <LoadingLink href="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-blue-600" />
             <span className="text-xl font-bold">StudyNotes</span>
-          </Link>
+          </LoadingLink>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              <Link key={item.name} href={item.href} className="text-gray-700 hover:text-blue-600 transition-colors">
+              <LoadingLink 
+                key={item.name} 
+                href={item.href} 
+                className={`transition-colors ${
+                  isActive(item.href) 
+                    ? 'text-blue-600 font-medium' 
+                    : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
                 {item.name}
-              </Link>
+              </LoadingLink>
             ))}
             {isLoggedIn && (
-              <Link href="/my-notes" className="text-gray-700 hover:text-blue-600 transition-colors">
+              <LoadingLink 
+                href="/my-notes" 
+                className={`transition-colors ${
+                  isActive('/my-notes') 
+                    ? 'text-blue-600 font-medium' 
+                    : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
                 My Notes
-              </Link>
+              </LoadingLink>
             )}
           </div>
 
           {/* Right side buttons */}
           <div className="flex items-center space-x-4">
             <Button asChild variant="ghost" size="sm" className="relative">
-              <Link href="/cart">
+              <LoadingLink href="/cart">
                 <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
                   <Badge
@@ -69,7 +94,7 @@ export function Navbar() {
                     {itemCount}
                   </Badge>
                 )}
-              </Link>
+              </LoadingLink>
             </Button>
 
             {/* User Login/Logout Button */}
@@ -90,10 +115,10 @@ export function Navbar() {
               </div>
             ) : (
               <Button asChild variant="outline" size="sm">
-                <Link href="/login">
+                <LoadingLink href="/login">
                   <User className="h-4 w-4 mr-2" />
                   Login
-                </Link>
+                </LoadingLink>
               </Button>
             )}
 
@@ -107,23 +132,31 @@ export function Navbar() {
               <SheetContent side="right">
                 <div className="flex flex-col space-y-4 mt-8">
                   {navigation.map((item) => (
-                    <Link
+                    <LoadingLink
                       key={item.name}
                       href={item.href}
-                      className="text-lg font-medium"
+                      className={`text-lg font-medium ${
+                        isActive(item.href) 
+                          ? 'text-blue-600' 
+                          : 'text-gray-700'
+                      }`}
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}
-                    </Link>
+                    </LoadingLink>
                   ))}
                   {isLoggedIn && (
-                    <Link
+                    <LoadingLink
                       href="/my-notes"
-                      className="text-lg font-medium"
+                      className={`text-lg font-medium ${
+                        isActive('/my-notes') 
+                          ? 'text-blue-600' 
+                          : 'text-gray-700'
+                      }`}
                       onClick={() => setIsOpen(false)}
                     >
                       My Notes
-                    </Link>
+                    </LoadingLink>
                   )}
                 </div>
               </SheetContent>

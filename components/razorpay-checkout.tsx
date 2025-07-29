@@ -15,6 +15,7 @@ interface RazorpayCheckoutProps {
     customer: {
       name: string
       email: string
+      phone?: string
     }
   }
   onSuccess: (response: RazorpayResponse) => void
@@ -45,6 +46,7 @@ export function RazorpayCheckout({ orderData, onSuccess, onError }: RazorpayChec
         prefill: {
           name: orderData.customer.name,
           email: orderData.customer.email,
+          ...(orderData.customer.phone && { contact: orderData.customer.phone }),
         },
         theme: {
           color: "#3B82F6",
@@ -57,6 +59,10 @@ export function RazorpayCheckout({ orderData, onSuccess, onError }: RazorpayChec
               description: "You cancelled the payment process.",
               variant: "destructive",
             })
+            // Refresh the page after showing the toast
+            setTimeout(() => {
+              window.location.reload()
+            }, 2000)
           },
         },
       })

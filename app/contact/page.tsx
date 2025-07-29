@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,27 @@ export default function ContactPage() {
     message: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Load user data from localStorage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      try {
+        const user = JSON.parse(userData)
+        if (user.name && user.email) {
+          setFormData(prev => ({
+            ...prev,
+            name: user.name,
+            email: user.email
+          }))
+          setIsAuthenticated(true)
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -51,7 +72,12 @@ export default function ContactPage() {
           title: "Message sent!",
           description: "Thank you for your message. We'll get back to you soon.",
         })
-        setFormData({ name: "", email: "", subject: "", message: "" })
+        // Only reset subject and message, keep name and email
+        setFormData(prev => ({ 
+          ...prev, 
+          subject: "", 
+          message: "" 
+        }))
       } else {
         throw new Error(response.message || "Failed to send message")
       }
@@ -86,6 +112,11 @@ export default function ContactPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Send us a message</CardTitle>
+                {isAuthenticated && (
+                  <p className="text-sm text-gray-600">
+                    Your contact information has been pre-filled from your account.
+                  </p>
+                )}
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -99,6 +130,8 @@ export default function ContactPage() {
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Your full name"
+                        readOnly={isAuthenticated}
+                        className={isAuthenticated ? "bg-gray-50 cursor-not-allowed" : ""}
                       />
                     </div>
                     <div>
@@ -111,6 +144,8 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="your@email.com"
+                        readOnly={isAuthenticated}
+                        className={isAuthenticated ? "bg-gray-50 cursor-not-allowed" : ""}
                       />
                     </div>
                   </div>

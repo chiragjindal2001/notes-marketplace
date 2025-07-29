@@ -1,17 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useNavigation } from "@/hooks/use-navigation";
 
 export function SignOutButton() {
-  const router = useRouter();
+  const { navigate } = useNavigation();
 
   const handleSignOut = async () => {
     localStorage.removeItem('user_token');
     localStorage.removeItem('user');
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
-    router.push('/login');
-    router.refresh();
+    navigate('/login');
   };
 
   return (

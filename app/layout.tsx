@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Providers } from "./providers"
 import { AuthProvider } from "@/components/auth-provider"
 import { TokenHandler } from "@/components/TokenHandler";
+import { LoadingHandler } from "@/components/ui/loading-handler";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <TokenHandler />
         <Providers>
+          <LoadingHandler />
           {children}
           <Toaster />
         </Providers>

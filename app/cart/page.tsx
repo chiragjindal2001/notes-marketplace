@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -8,9 +10,31 @@ import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "@/hooks/use-cart"
+import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
 export default function CartPage() {
+  const router = useRouter()
   const { items, removeItem, getTotal } = useCart()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const token = localStorage.getItem('user_token')
+    if (!token) {
+      router.push('/login?callbackUrl=/cart')
+      return
+    }
+    setIsAuthenticated(true)
+    setIsLoading(false)
+  }, [router])
+
+  if (isLoading) {
+    return <LoadingPage text="Loading cart..." />
+  }
+
+  if (!isAuthenticated) {
+    return null // Will redirect to login
+  }
 
   if (items.length === 0) {
     return (

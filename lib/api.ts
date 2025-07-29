@@ -262,4 +262,21 @@ export const couponApi = {
     }),
 }
 
+// User Orders API
+export const userOrdersApi = {
+  getOrders: (params?: any) => {
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, value.toString())
+        }
+      })
+    }
+    return apiRequest<{ items: any[] }>(`/orders?${searchParams.toString()}`)
+  },
+
+  getOrderById: (orderId: string) => apiRequest(`/orders/${orderId}`),
+}
+
 // Auth and session utilities are handled in the apiRequest function

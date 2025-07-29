@@ -10,6 +10,7 @@ import { Download } from "lucide-react"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
 
 interface Note {
   id: string
@@ -26,6 +27,7 @@ export default function MyNotesPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("All")
+  const { toast } = useToast();
 
   // Extract unique subjects from notes
   const subjects = ["All", ...Array.from(new Set(notes.map((n) => n.subject)))]
@@ -73,6 +75,49 @@ export default function MyNotesPage() {
     acc[note.subject].push(note);
     return acc;
   }, {} as Record<string, Note[]>);
+
+  // Helper to handle download securely
+  const handleDownload = async (note: Note) => {
+    try {
+      if (!note.id) {
+        toast({ title: "Error", description: "Note ID missing.", variant: "destructive" });
+        return;
+      }
+      const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "http://localhost:8080";
+      const userToken = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
+      const res = await fetch(`${backendUrl}/api/downloads/${note.id}`, {
+        method: "GET",
+        headers: {
+          ...(userToken ? { Authorization: `Bearer ${userToken}` } : {})
+        },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast({ title: "Download Failed", description: data.message || "You are not authorized to download this note.", variant: "destructive" });
+        return;
+      }
+      const blob = await res.blob();
+      // Try to get filename from Content-Disposition header
+      let filename = note.title ? note.title.replace(/\s+/g, '-').toLowerCase() + '-notes.pdf' : 'note.pdf';
+      const disposition = res.headers.get('Content-Disposition');
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const match = disposition.match(/filename="?([^";]+)"?/);
+        if (match && match[1]) filename = match[1];
+      }
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
+    } catch (e) {
+      toast({ title: "Download Failed", description: "An error occurred while downloading.", variant: "destructive" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -154,10 +199,8 @@ export default function MyNotesPage() {
                     </div>
                     <CardTitle className="mb-2 line-clamp-2 text-base md:text-lg truncate">{note.title}</CardTitle>
                     <div className="flex gap-2 mt-4">
-                      <Button asChild className="flex-1">
-                        <a href={note.download_url} target="_blank" rel="noopener noreferrer">
-                          <Download className="h-4 w-4 mr-2" /> Download
-                        </a>
+                      <Button className="flex-1" onClick={() => handleDownload(note)}>
+                        <Download className="h-4 w-4 mr-2" /> Download
                       </Button>
                     </div>
                   </CardContent>

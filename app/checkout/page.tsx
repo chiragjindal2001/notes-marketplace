@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -19,11 +20,16 @@ import { PaymentMethods } from "@/components/payment-methods"
 import type { RazorpayResponse } from "@/lib/razorpay-client"
 import { checkoutApi } from "@/lib/api"
 import { loadRazorpayScript } from "@/lib/razorpay-client";
+import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
 export default function CheckoutPage() {
+  const router = useRouter()
   const { items, getTotal, clearCart } = useCart()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -37,6 +43,16 @@ export default function CheckoutPage() {
   useEffect(() => {
     loadRazorpayScript();
   }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('user_token')
+    if (!token) {
+      router.push('/login?callbackUrl=/checkout')
+      return
+    }
+    setIsAuthenticated(true)
+    setIsLoading(false)
+  }, [router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -90,6 +106,7 @@ export default function CheckoutPage() {
   }
 
   const handlePaymentSuccess = async (response: RazorpayResponse) => {
+    setIsVerifyingPayment(true)
     try {
       const verifyResponse = await checkoutApi.verifyPayment({
         razorpay_order_id: response.razorpay_order_id,
@@ -99,12 +116,14 @@ export default function CheckoutPage() {
       })
 
       if (verifyResponse.success) {
+        // Clear cart first, then navigate to success page
+        await clearCart()
         toast({
           title: "Payment Successful!",
           description: "Your notes have been sent to your email address.",
         })
-        await clearCart()
-        window.location.href = "/success"
+        // Navigate to success page with order ID
+        window.location.href = `/success?orderId=${orderData?.order_id}`
       } else {
         throw new Error(verifyResponse.message || "Payment verification failed")
       }
@@ -115,6 +134,8 @@ export default function CheckoutPage() {
         description: error.message || "Please contact support if amount was deducted.",
         variant: "destructive",
       })
+    } finally {
+      setIsVerifyingPayment(false)
     }
   }
 
@@ -125,6 +146,14 @@ export default function CheckoutPage() {
       description: "Payment could not be processed. Please try again.",
       variant: "destructive",
     })
+  }
+
+  if (isLoading) {
+    return <LoadingPage text="Loading checkout..." />
+  }
+
+  if (!isAuthenticated) {
+    return null // Will redirect to login
   }
 
   if (items.length === 0) {
@@ -299,6 +328,22 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Verification Loading Overlay */}
+      {isVerifyingPayment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <LoadingSpinner className="mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Verifying Payment</h3>
+            <p className="text-gray-600 mb-4">
+              Please wait while we verify your payment with our payment gateway...
+            </p>
+            <div className="text-sm text-gray-500">
+              This usually takes a few seconds. Please do not close this window.
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

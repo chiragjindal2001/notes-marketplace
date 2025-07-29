@@ -9,10 +9,21 @@ export class ApiClient {
   private refreshPromise: Promise<TokenPair> | null = null;
 
   constructor() {
+    // Don't read tokens in constructor - read them fresh on each request
+  }
+
+  private getAccessToken(): string | null {
     if (typeof window !== 'undefined') {
-      this.accessToken = localStorage.getItem('accessToken');
-      this.refreshToken = localStorage.getItem('refreshToken');
+      return localStorage.getItem('user_token');
     }
+    return this.accessToken;
+  }
+
+  private getRefreshToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('refreshToken');
+    }
+    return this.refreshToken;
   }
 
   setTokens(accessToken: string, refreshToken: string): void {
@@ -20,7 +31,7 @@ export class ApiClient {
     this.refreshToken = refreshToken;
     
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('user_token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
     }
   }
@@ -30,13 +41,14 @@ export class ApiClient {
     this.refreshToken = null;
     
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user_token');
       localStorage.removeItem('refreshToken');
     }
   }
 
   private async refreshTokens(): Promise<TokenPair> {
-    if (!this.refreshToken) {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
       throw new Error('No refresh token available');
     }
 
@@ -111,8 +123,13 @@ export class ApiClient {
       }
     }
 
-    if (this.accessToken) {
-      headers.set('Authorization', `Bearer ${this.accessToken}`);
+    const accessToken = this.getAccessToken();
+    console.log('API Client - Access Token:', accessToken ? 'Present' : 'Missing');
+    if (accessToken) {
+      headers.set('Authorization', `Bearer ${accessToken}`);
+      console.log('API Client - Authorization header set');
+    } else {
+      console.log('API Client - No access token available');
     }
 
     // Debug: log all request headers
@@ -141,11 +158,12 @@ export class ApiClient {
       throw new Error('Network error: Failed to connect to the server');
     }
 
-    if (response.status === 401 && this.refreshToken) {
+    if (response.status === 401 && this.getRefreshToken()) {
       try {
         await this.refreshTokens();
-        if (this.accessToken) {
-          headers.set('Authorization', `Bearer ${this.accessToken}`);
+        const newAccessToken = this.getAccessToken();
+        if (newAccessToken) {
+          headers.set('Authorization', `Bearer ${newAccessToken}`);
           const retryResponse = await fetch(url, {
             ...config,
             headers,

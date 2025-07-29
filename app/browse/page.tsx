@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -13,10 +14,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "@/hooks/use-cart"
 import { notesApi } from "@/lib/api"
+import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
 const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'http://localhost:8080');
 
 export default function BrowsePage() {
+  const router = useRouter()
   const [notes, setNotes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,6 +31,7 @@ export default function BrowsePage() {
   // const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const { addItem } = useCart()
   const [page, setPage] = useState(1)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science", "Engineering"]
   const sortOptions = [
@@ -39,6 +43,18 @@ export default function BrowsePage() {
   ]
 
   useEffect(() => {
+    const token = localStorage.getItem('user_token')
+    if (!token) {
+      router.push('/login?callbackUrl=/browse')
+      return
+    }
+    setIsAuthenticated(true)
+    setLoading(false)
+  }, [router])
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+
     const fetchNotes = async () => {
       setLoading(true)
       setError(null)
@@ -74,15 +90,32 @@ export default function BrowsePage() {
     }
 
     fetchNotes()
-  }, [searchTerm, selectedSubject, sortBy, page])
+  }, [searchTerm, selectedSubject, sortBy, page, isAuthenticated])
 
   const handleAddToCart = (note: (typeof notes)[0]) => {
+    if (!isAuthenticated) {
+      router.push('/login?callbackUrl=/browse')
+      return
+    }
     addItem({
       id: note.id.toString(),
       title: note.title,
       price: note.price,
       image: note.preview,
     })
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // Show loading page while checking authentication
+  if (loading && !isAuthenticated) {
+    return <LoadingPage text="Checking authentication..." />;
   }
 
   return (
@@ -147,7 +180,7 @@ export default function BrowsePage() {
         {/* Add loading and error states in the render: */}
         {loading && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Loading notes...</p>
+            <LoadingSpinner size="lg" text="Loading notes..." />
           </div>
         )}
 

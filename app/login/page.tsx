@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ClientInput } from "@/components/ui/client-input";
 import { ClientButton } from "@/components/ui/client-button";
 import GoogleSignInButton from '@/components/GoogleSignInButton';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,13 +16,21 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
-  // Check if user is already logged in
+  // Check if user is already logged in and auto-fill email from URL params
   useEffect(() => {
     const token = localStorage.getItem("user_token");
     if (token) {
       const callback = searchParams.get('callbackUrl') || "/";
       router.push(callback);
+    } else {
+      // Auto-fill email from URL parameters (e.g., from email verification)
+      const emailFromParams = searchParams.get('email');
+      if (emailFromParams) {
+        setEmail(decodeURIComponent(emailFromParams));
+      }
     }
   }, [router, searchParams]);
 
@@ -61,6 +70,12 @@ export default function LoginPage() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred during login';
       setError(errorMessage);
+      
+      // Check if it's an email verification error
+      if (errorMessage.includes('verify your email')) {
+        setShowResendVerification(true);
+      }
+      
       console.error('Login error:', error);
     } finally {
       setLoading(false);
@@ -79,6 +94,42 @@ export default function LoginPage() {
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!email) {
+      setError("Please enter your email address first");
+      return;
+    }
+
+    setResendLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/resend-verification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to resend verification email');
+      }
+
+      setError("");
+      setShowResendVerification(false);
+      alert("Verification email sent successfully! Please check your inbox.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred while resending verification email';
+      setError(errorMessage);
+      console.error('Resend verification error:', error);
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -93,6 +144,24 @@ export default function LoginPage() {
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
             <span className="block sm:inline">{error}</span>
+            {showResendVerification && (
+              <div className="mt-3 space-y-2">
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendLoading}
+                  className="text-sm text-indigo-600 hover:text-indigo-500 font-medium disabled:opacity-50 disabled:cursor-not-allowed block"
+                >
+                  {resendLoading ? 'Sending...' : 'Resend verification email'}
+                </button>
+                <div className="text-sm text-gray-600">
+                  Or{' '}
+                  <Link href="/verify-email" className="text-indigo-600 hover:text-indigo-500 font-medium">
+                    verify your email here
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -146,9 +215,9 @@ export default function LoginPage() {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -160,10 +229,7 @@ export default function LoginPage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                  <LoadingSpinner size="sm" text="" className="mr-2 text-white" />
                   Signing in...
                 </>
               ) : 'Sign in'}
