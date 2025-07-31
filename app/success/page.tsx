@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
@@ -8,7 +8,7 @@ import { OrderConfirmation } from "@/components/order-confirmation"
 import { userOrdersApi } from "@/lib/api"
 import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
   const [orderData, setOrderData] = useState<any>(null)
@@ -71,5 +71,25 @@ export default function SuccessPage() {
 
       <Footer />
     </div>
+  )
+}
+
+function SuccessPageFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-6xl mx-auto px-4 py-16 text-center">
+        <LoadingPage text="Loading..." />
+      </div>
+      <Footer />
+    </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<SuccessPageFallback />}>
+      <SuccessPageContent />
+    </Suspense>
   )
 }
