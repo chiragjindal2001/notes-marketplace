@@ -85,7 +85,7 @@ export default function MyNotesPage() {
       }
       const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "https://sienna-cod-887616.hostingersite.com/";
       const userToken = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
-      const res = await fetch(`${backendUrl}/api/downloads/${note.id}`, {
+      const res = await fetch(`${backendUrl}api/downloads/${note.id}`, {
         method: "GET",
         headers: {
           ...(userToken ? { Authorization: `Bearer ${userToken}` } : {})
