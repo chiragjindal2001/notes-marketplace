@@ -47,7 +47,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         image: item.preview_image
           ? item.preview_image.startsWith('http')
             ? item.preview_image
-            : `http://localhost:8080${item.preview_image}`
+            : `https://sienna-cod-887616.hostingersite.com${item.preview_image}`
           : "/placeholder.svg",
       }));
       
@@ -79,6 +79,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Use localStorage to check if user is authenticated
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Don't load cart on admin pages
+      if (window.location.pathname.startsWith('/admin')) {
+        setItems([]);
+        return;
+      }
+      
       const token = localStorage.getItem('user_token');
       if (token) {
         refreshCart().catch(error => {

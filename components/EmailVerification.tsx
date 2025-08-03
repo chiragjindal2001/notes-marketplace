@@ -22,7 +22,7 @@ export default function EmailVerification({ email, onVerificationSuccess }: Emai
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/verify-email`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/verify-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export default function EmailVerification({ email, onVerificationSuccess }: Emai
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/resend-verification`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

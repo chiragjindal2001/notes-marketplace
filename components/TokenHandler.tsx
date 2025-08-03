@@ -6,12 +6,20 @@ export function TokenHandler() {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       const token = url.searchParams.get("token");
+      const refreshToken = url.searchParams.get("refresh_token");
       const user = url.searchParams.get("user");
       let changed = false;
+      
       if (token) {
         localStorage.setItem("user_token", token);
         changed = true;
       }
+      
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+        changed = true;
+      }
+      
       if (user) {
         try {
           localStorage.setItem("user", JSON.stringify(JSON.parse(decodeURIComponent(user))));
@@ -20,10 +28,15 @@ export function TokenHandler() {
         }
         changed = true;
       }
+      
       if (changed) {
         url.searchParams.delete("token");
+        url.searchParams.delete("refresh_token");
         url.searchParams.delete("user");
         window.history.replaceState({}, document.title, url.pathname + url.search);
+        
+        // Force a page reload to update the authentication state
+        window.location.reload();
       }
     }
   }, []);

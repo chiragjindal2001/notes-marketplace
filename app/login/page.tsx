@@ -40,7 +40,7 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ function LoginForm() {
     setError("");
     try {
       // Redirect to backend Google OAuth endpoint
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/google/callback`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/google/callback`;
     } catch (err) {
       setError("Failed to initiate Google sign-in. Please try again.");
       setGoogleLoading(false);
@@ -104,7 +104,7 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/resend-verification`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

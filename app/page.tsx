@@ -286,7 +286,7 @@ export default function HomePage() {
                 <Card key={note.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="p-0">
                     {(() => {
-                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "http://localhost:8080";
+                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "https://sienna-cod-887616.hostingersite.com";
                       let imageUrl = note.preview_image || "/placeholder.svg";
                       if (imageUrl && !imageUrl.startsWith('http')) {
                         imageUrl = `${BACKEND_BASE_URL}${imageUrl}`;

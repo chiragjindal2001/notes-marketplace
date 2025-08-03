@@ -1,5 +1,5 @@
 export async function loginUser(email: string, password: string) {
-  const loginUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api") + "/auth/login";
+  const loginUrl = (process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api") + "/auth/login";
   const res = await fetch(loginUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -9,7 +9,7 @@ export async function loginUser(email: string, password: string) {
 }
 
 export async function registerUser(email: string, password: string, name: string) {
-  const registerUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api") + "/auth/register";
+  const registerUrl = (process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api") + "/auth/register";
   const res = await fetch(registerUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -19,7 +19,7 @@ export async function registerUser(email: string, password: string, name: string
 }
 
 export async function getCurrentUser(token: string) {
-  const meUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api") + "/auth/me";
+  const meUrl = (process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api") + "/auth/me";
   const res = await fetch(meUrl, {
     headers: { "Authorization": `Bearer ${token}` },
   });
@@ -27,7 +27,7 @@ export async function getCurrentUser(token: string) {
 }
 
 export async function logoutUser(token: string) {
-  const logoutUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api") + "/auth/logout";
+  const logoutUrl = (process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api") + "/auth/logout";
   const res = await fetch(logoutUrl, {
     method: "POST",
     headers: { "Authorization": `Bearer ${token}` },

@@ -1,17 +1,10 @@
-import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const session = await getToken({ req: request });
   const requestHeaders = new Headers(request.headers);
 
-  // Add backend token to API requests
-  if (session?.backendToken) {
-    requestHeaders.set('Authorization', `Bearer ${session.backendToken}`);
-  }
-
-  // For API routes, pass through with the new headers
+  // For API routes, pass through
   if (request.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next({
       request: {
@@ -23,10 +16,10 @@ export async function middleware(request: NextRequest) {
   // Handle protected routes
   const isAuthPage = ['/login', '/register'].includes(request.nextUrl.pathname);
   
-  if (!session && !isAuthPage) {
-    const url = new URL('/login', request.url);
-    url.searchParams.set('callbackUrl', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+  // Check for custom JWT token in localStorage (we'll check this on the client side)
+  // For now, let all requests through and handle auth on the client side
+  if (isAuthPage) {
+    return NextResponse.next();
   }
 
   return NextResponse.next();

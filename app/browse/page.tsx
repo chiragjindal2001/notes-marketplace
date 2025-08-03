@@ -16,7 +16,7 @@ import { useCart } from "@/hooks/use-cart"
 import { notesApi } from "@/lib/api"
 import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
-const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'http://localhost:8080');
+const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'https://sienna-cod-887616.hostingersite.com');
 
 export default function BrowsePage() {
   const router = useRouter()
@@ -49,7 +49,6 @@ export default function BrowsePage() {
       return
     }
     setIsAuthenticated(true)
-    setLoading(false)
   }, [router])
 
   useEffect(() => {
@@ -68,16 +67,14 @@ export default function BrowsePage() {
         })
 
         if (response.success && response.data) {
-          console.log('API response:', response);
           let items;
           if (Array.isArray(response.data)) {
             items = response.data;
-          } else if (Array.isArray(response.data.items)) {
+          } else if (response.data && Array.isArray(response.data.items)) {
             items = response.data.items;
           } else {
             items = [];
           }
-          console.log('Final items to set:', items);
           setNotes(items);
           setFilteredNotes(items);
         }
@@ -101,7 +98,7 @@ export default function BrowsePage() {
       id: note.id.toString(),
       title: note.title,
       price: note.price,
-      image: note.preview,
+      image: note.preview_image,
     })
   }
 
@@ -114,8 +111,8 @@ export default function BrowsePage() {
   }
 
   // Show loading page while checking authentication
-  if (loading && !isAuthenticated) {
-    return <LoadingPage text="Checking authentication..." />;
+  if (loading) {
+    return <LoadingPage text="Loading notes..." />;
   }
 
   return (
