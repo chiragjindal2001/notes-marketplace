@@ -44,7 +44,7 @@ export default function MyNotesPage() {
       setLoading(true)
       setError(null)
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "http://localhost:8080/api/my-notes";
+        const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "https://sienna-cod-887616.hostingersite.com/api/my-notes";
         const res = await fetch(backendUrl, {
           credentials: "include",
           headers: {
@@ -83,7 +83,7 @@ export default function MyNotesPage() {
         toast({ title: "Error", description: "Note ID missing.", variant: "destructive" });
         return;
       }
-      const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "http://localhost:8080";
+      const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "https://sienna-cod-887616.hostingersite.com/";
       const userToken = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
       const res = await fetch(`${backendUrl}/api/downloads/${note.id}`, {
         method: "GET",
@@ -176,9 +176,9 @@ export default function MyNotesPage() {
                 if (imageUrl.startsWith('http')) {
                   // use as is
                 } else if (imageUrl.startsWith('/')) {
-                  imageUrl = `http://localhost:8080${imageUrl}`;
+                  imageUrl = `https://sienna-cod-887616.hostingersite.com/${imageUrl}`;
                 } else {
-                  imageUrl = `http://localhost:8080/uploads/images/${imageUrl.replace(/^\/+/, '')}`;
+                  imageUrl = `https://sienna-cod-887616.hostingersite.com/uploads/images/${imageUrl.replace(/^\/+/, '')}`;
                 }
               }
               return (

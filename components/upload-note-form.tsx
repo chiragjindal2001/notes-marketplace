@@ -14,14 +14,14 @@ import { useToast } from "@/hooks/use-toast"
 import { adminApi } from "@/lib/api"
 
 const subjects = [
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-  "Biology",
-  "Computer Science",
-  "Engineering",
+  "History",
+  "Geography",
+  "Polity",
   "Economics",
-  "Psychology",
+  "Environment",
+  "Science & Technology",
+  "Current Affairs",
+  "General Studies",
 ]
 
 export function UploadNoteForm() {
@@ -29,7 +29,7 @@ export function UploadNoteForm() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    subject: "Mathematics",
+    subject: "History",
     price: "",
     tags: "",
   })
@@ -88,7 +88,7 @@ export function UploadNoteForm() {
         setFormData({
           title: "",
           description: "",
-          subject: "",
+          subject: "History",
           price: "",
           tags: "",
         })

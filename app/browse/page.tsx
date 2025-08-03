@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
@@ -16,7 +16,7 @@ import { useCart } from "@/hooks/use-cart"
 import { notesApi } from "@/lib/api"
 import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
-const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'http://localhost:8080');
+const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'https://sienna-cod-887616.hostingersite.com/');
 
 export default function BrowsePage() {
   const router = useRouter()
@@ -30,7 +30,6 @@ export default function BrowsePage() {
   // Remove viewMode state and toggle
   // const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const { addItem } = useCart()
-  const [page, setPage] = useState(1)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   const subjects = ["All", "History", "Geography", "Polity", "Economics", "Environment", "Science & Technology", "Current Affairs"]
@@ -51,6 +50,7 @@ export default function BrowsePage() {
     setIsAuthenticated(true)
   }, [router])
 
+  // Fetch all notes once on component mount
   useEffect(() => {
     if (!isAuthenticated) return
 
@@ -59,11 +59,8 @@ export default function BrowsePage() {
       setError(null)
       try {
         const response = await notesApi.getAll({
-          page,
-          limit: 12,
-          subject: selectedSubject !== "All" ? selectedSubject : undefined,
-          search: searchTerm || undefined,
-          sort: sortBy,
+          page: 1,
+          limit: 100, // Get more notes for client-side filtering
         })
 
         if (response.success && response.data) {
@@ -76,7 +73,6 @@ export default function BrowsePage() {
             items = [];
           }
           setNotes(items);
-          setFilteredNotes(items);
         }
       } catch (error) {
         console.error("Failed to fetch notes:", error)
@@ -87,7 +83,62 @@ export default function BrowsePage() {
     }
 
     fetchNotes()
-  }, [searchTerm, selectedSubject, sortBy, page, isAuthenticated])
+  }, [isAuthenticated])
+
+  // Client-side filtering and sorting
+  useEffect(() => {
+    if (!notes.length) return;
+
+    let filtered = [...notes];
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(note => 
+        note.title.toLowerCase().includes(searchLower) ||
+        note.description.toLowerCase().includes(searchLower) ||
+        note.subject.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply subject filter
+    if (selectedSubject !== "All") {
+      filtered = filtered.filter(note => note.subject === selectedSubject);
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case "popular":
+        // Sort by downloads (descending)
+        filtered.sort((a, b) => {
+          const aDownloads = typeof a.downloads === 'string' ? parseInt(a.downloads) : a.downloads;
+          const bDownloads = typeof b.downloads === 'string' ? parseInt(b.downloads) : b.downloads;
+          return bDownloads - aDownloads;
+        });
+        break;
+      case "rating":
+        // Sort by rating (descending)
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case "price-low":
+        // Sort by price (ascending)
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        // Sort by price (descending)
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case "newest":
+        // Sort by created_at (descending)
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      default:
+        // Default: newest first
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
+    setFilteredNotes(filtered);
+  }, [notes, searchTerm, selectedSubject, sortBy]);
 
   const handleAddToCart = (note: (typeof notes)[0]) => {
     if (!isAuthenticated) {
@@ -170,7 +221,7 @@ export default function BrowsePage() {
           </div>
 
           <div className="text-sm text-gray-600">
-            Showing {Array.isArray(filteredNotes) ? filteredNotes.length : 0} of {Array.isArray(notes) ? notes.length : 0} notes
+            Showing {filteredNotes.length} of {notes.length} notes
           </div>
         </div>
 

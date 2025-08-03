@@ -30,7 +30,7 @@ function ResetPasswordContent() {
 
   const validateToken = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/validate-reset-token`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/validate-reset-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ function ResetPasswordContent() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/reset-password`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

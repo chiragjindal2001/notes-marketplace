@@ -24,7 +24,7 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
     try {
-      const registerUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api") + "/auth/register";
+      const registerUrl = (process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api") + "/auth/register";
       console.log("Register API Request URL:", registerUrl);
       const res = await fetch(registerUrl, {
         method: "POST",
@@ -52,7 +52,7 @@ export default function RegisterPage() {
     setError("");
     try {
       // Redirect to backend Google OAuth endpoint
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/google/callback`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/google/callback`;
     } catch (err) {
       setError("Failed to initiate Google registration. Please try again.");
       setGoogleLoading(false);

@@ -151,7 +151,7 @@ export default function NoteDetailPage() {
           <div>
             <div className="mb-4">
               {(() => {
-                const BACKEND_BASE_URL = "http://localhost:8080"; // <-- Set your backend URL here
+                const BACKEND_BASE_URL = "https://sienna-cod-887616.hostingersite.com/"; // <-- Set your backend URL here
                 const rawImageUrl =
                   (note.sample_pages && note.sample_pages.length > 0 && note.sample_pages[selectedImage]) ||
                   note.preview_image ||

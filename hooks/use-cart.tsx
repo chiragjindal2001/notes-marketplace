@@ -47,7 +47,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         image: item.preview_image
           ? item.preview_image.startsWith('http')
             ? item.preview_image
-            : `http://localhost:8080${item.preview_image}`
+            : `https://sienna-cod-887616.hostingersite.com/${item.preview_image}`
           : "/placeholder.svg",
       }));
       
