@@ -49,7 +49,7 @@ export function Navbar() {
           {/* Logo */}
           <LoadingLink href="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold">StudyNotes</span>
+            <span className="text-xl font-bold">Civil Studies</span>
           </LoadingLink>
 
           {/* Desktop Navigation */}

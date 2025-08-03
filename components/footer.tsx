@@ -10,9 +10,9 @@ export function Footer() {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <BookOpen className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">StudyNotes</span>
+              <span className="text-xl font-bold">Civil Studies</span>
             </div>
-            <p className="text-gray-400 mb-4">Premium handwritten notes to help you excel in your studies.</p>
+            <p className="text-gray-400 mb-4">Premium handwritten notes for civil services preparation.</p>
           </div>
 
           {/* Quick Links */}
@@ -36,19 +36,19 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Popular Subjects</h3>
             <div className="space-y-2">
               <Link
-                href="/browse?subject=mathematics"
+                href="/browse?subject=history"
                 className="block text-gray-400 hover:text-white transition-colors"
               >
-                Mathematics
+                History
               </Link>
-              <Link href="/browse?subject=physics" className="block text-gray-400 hover:text-white transition-colors">
-                Physics
+              <Link href="/browse?subject=geography" className="block text-gray-400 hover:text-white transition-colors">
+                Geography
               </Link>
-              <Link href="/browse?subject=chemistry" className="block text-gray-400 hover:text-white transition-colors">
-                Chemistry
+              <Link href="/browse?subject=polity" className="block text-gray-400 hover:text-white transition-colors">
+                Polity
               </Link>
-              <Link href="/browse?subject=biology" className="block text-gray-400 hover:text-white transition-colors">
-                Biology
+              <Link href="/browse?subject=economics" className="block text-gray-400 hover:text-white transition-colors">
+                Economics
               </Link>
             </div>
           </div>
@@ -59,7 +59,7 @@ export function Footer() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-gray-400">
                 <Mail className="h-4 w-4" />
-                <span>hello@studynotes.com</span>
+                <span>hello@civilstudies.com</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <Phone className="h-4 w-4" />
@@ -74,7 +74,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 StudyNotes. All rights reserved.</p>
+          <p>&copy; 2024 Civil Studies. All rights reserved.</p>
         </div>
       </div>
     </footer>

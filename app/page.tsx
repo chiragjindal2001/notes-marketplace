@@ -191,11 +191,11 @@ export default function HomePage() {
               ✨ Premium Quality Notes
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
-              Master Your Studies
+              Master Civil Services
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Access premium handwritten notes crafted by top students. Clear explanations, detailed diagrams, and
-              comprehensive coverage of key topics.
+              Access premium handwritten notes crafted by top civil services aspirants. Clear explanations, detailed diagrams, and
+              comprehensive coverage of history, geography, polity, economics, and more.
             </p>
           </div>
 
@@ -232,13 +232,13 @@ export default function HomePage() {
             <div>
               <h2 className="text-3xl font-bold mb-6">About the Creator</h2>
               <p className="text-gray-600 mb-4">
-                Hi! I'm a passionate educator and top-performing student who believes in the power of well-organized,
-                handwritten notes. Having achieved excellent grades across multiple subjects, I've decided to share my
-                comprehensive notes to help fellow students succeed.
+                Hi! I'm a passionate civil services educator and top-performing aspirant who believes in the power of well-organized,
+                handwritten notes. Having achieved excellent results in civil services preparation, I've decided to share my
+                comprehensive notes to help fellow civil services aspirants succeed.
               </p>
               <p className="text-gray-600 mb-6">
-                Each set of notes is carefully crafted with clear explanations, helpful diagrams, and important formulas
-                highlighted for easy reference during exams.
+                Each set of notes is carefully crafted with clear explanations, helpful diagrams, and important concepts
+                highlighted for easy reference during exams and interviews.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Badge variant="secondary" className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export default function HomePage() {
                 <Card key={note.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="p-0">
                     {(() => {
-                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "https://sienna-cod-887616.hostingersite.com";
+                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "http://localhost:8080";
                       let imageUrl = note.preview_image || "/placeholder.svg";
                       if (imageUrl && !imageUrl.startsWith('http')) {
                         imageUrl = `${BACKEND_BASE_URL}${imageUrl}`;

@@ -16,7 +16,7 @@ import { useCart } from "@/hooks/use-cart"
 import { notesApi } from "@/lib/api"
 import { LoadingSpinner, LoadingPage } from "@/components/ui/loading-spinner"
 
-const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'https://sienna-cod-887616.hostingersite.com');
+const BACKEND_URL = process.env.SERVER_BASE_URL || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') : 'http://localhost:8080');
 
 export default function BrowsePage() {
   const router = useRouter()
@@ -33,7 +33,7 @@ export default function BrowsePage() {
   const [page, setPage] = useState(1)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science", "Engineering"]
+  const subjects = ["All", "History", "Geography", "Polity", "Economics", "Environment", "Science & Technology", "Current Affairs"]
   const sortOptions = [
     { value: "popular", label: "Most Popular" },
     { value: "rating", label: "Highest Rated" },
@@ -123,7 +123,7 @@ export default function BrowsePage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Browse Notes</h1>
-          <p className="text-gray-600">Find the perfect study materials for your subjects</p>
+          <p className="text-gray-600">Find the perfect civil services study materials for your subjects</p>
         </div>
 
         {/* Filters */}

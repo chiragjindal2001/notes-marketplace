@@ -44,7 +44,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const loginUrl = (process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api") + "/auth/login";
+      const loginUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api") + "/auth/login";
       const res = await fetch(loginUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

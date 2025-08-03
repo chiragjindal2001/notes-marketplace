@@ -67,14 +67,14 @@ import { adminApi } from "@/lib/api"
 // ]
 
 const subjects = [
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-  "Biology",
-  "Computer Science",
-  "Engineering",
+  "History",
+  "Geography",
+  "Polity",
   "Economics",
-  "Psychology",
+  "Environment",
+  "Science & Technology",
+  "Current Affairs",
+  "General Studies",
 ]
 
 export function ManageNotes() {

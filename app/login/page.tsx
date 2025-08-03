@@ -40,7 +40,7 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ function LoginForm() {
     setError("");
     try {
       // Redirect to backend Google OAuth endpoint
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/google/callback`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/google/callback`;
     } catch (err) {
       setError("Failed to initiate Google sign-in. Please try again.");
       setGoogleLoading(false);
@@ -104,7 +104,7 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://sienna-cod-887616.hostingersite.com/api'}/auth/resend-verification`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h1 className="text-4xl font-extrabold text-blue-600 text-center mb-2 sm:text-5xl tracking-tight">StudyNotes</h1>
+          <h1 className="text-4xl font-extrabold text-blue-600 text-center mb-2 sm:text-5xl tracking-tight">Civil Studies</h1>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
@@ -255,7 +255,7 @@ function LoginPageFallback() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h1 className="text-4xl font-extrabold text-blue-600 text-center mb-2 sm:text-5xl tracking-tight">StudyNotes</h1>
+          <h1 className="text-4xl font-extrabold text-blue-600 text-center mb-2 sm:text-5xl tracking-tight">Civil Studies</h1>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>

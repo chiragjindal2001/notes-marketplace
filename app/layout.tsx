@@ -11,10 +11,10 @@ import { LoadingHandler } from "@/components/ui/loading-handler";
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "StudyNotes Marketplace - Premium Handwritten Notes",
+  title: "Civil Studies - Premium Handwritten Notes",
   description:
-    "Browse and purchase high-quality handwritten notes for various subjects. Digital delivery, instant access.",
-  keywords: "handwritten notes, study materials, academic notes, digital notes",
+    "Browse and purchase high-quality handwritten notes for civil services preparation. Digital delivery, instant access.",
+  keywords: "civil services notes, IAS notes, IPS notes, study materials, academic notes, digital notes, government services",
   generator: 'v0.dev'
 }
 

@@ -58,7 +58,7 @@ export class ApiClient {
 
     this.refreshPromise = (async (): Promise<TokenPair> => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
         const response = await fetch(`${apiUrl}/auth/refresh`, {
           method: 'POST',
           headers: {
@@ -93,7 +93,7 @@ export class ApiClient {
     data?: any,
     options: RequestInit = {}
   ): Promise<T> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
     
     const url = `${apiUrl}${endpoint}`;
     console.log(`[API] ${method} ${url}`, { data });

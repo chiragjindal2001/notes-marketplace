@@ -1,4 +1,4 @@
-2025-07-21T17:19:14.892Z - {"timestamp":"2025-07-21T17:19:12.266Z","type":"REQUEST","url":"https://sienna-cod-887616.hostingersite.com/api/notes?limit=3&sort=popular","method":"GET","headers":{}}
-2025-07-21T17:19:17.757Z - {"timestamp":"2025-07-21T17:19:17.599Z","type":"ERROR","url":"https://sienna-cod-887616.hostingersite.com/api/notes?limit=3&sort=popular","error":"Failed to fetch","duration":5333,"method":"GET"}
-2025-07-21T17:42:14.553Z - {"timestamp":"2025-07-21T17:42:14.298Z","type":"REQUEST","url":"https://sienna-cod-887616.hostingersite.com/api/notes?limit=3&sort=popular","method":"GET","headers":{}}
-2025-07-21T17:42:18.602Z - {"timestamp":"2025-07-21T17:42:18.353Z","type":"ERROR","url":"https://sienna-cod-887616.hostingersite.com/api/notes?limit=3&sort=popular","error":"Failed to fetch","duration":4055,"method":"GET"}
+2025-07-21T17:19:14.892Z - {"timestamp":"2025-07-21T17:19:12.266Z","type":"REQUEST","url":"http://localhost:8080/api/notes?limit=3&sort=popular","method":"GET","headers":{}}
+2025-07-21T17:19:17.757Z - {"timestamp":"2025-07-21T17:19:17.599Z","type":"ERROR","url":"http://localhost:8080/api/notes?limit=3&sort=popular","error":"Failed to fetch","duration":5333,"method":"GET"}
+2025-07-21T17:42:14.553Z - {"timestamp":"2025-07-21T17:42:14.298Z","type":"REQUEST","url":"http://localhost:8080/api/notes?limit=3&sort=popular","method":"GET","headers":{}}
+2025-07-21T17:42:18.602Z - {"timestamp":"2025-07-21T17:42:18.353Z","type":"ERROR","url":"http://localhost:8080/api/notes?limit=3&sort=popular","error":"Failed to fetch","duration":4055,"method":"GET"}
