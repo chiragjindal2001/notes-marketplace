@@ -58,7 +58,8 @@ export class ApiClient {
 
     this.refreshPromise = (async (): Promise<TokenPair> => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api";
+        const response = await fetch(`${apiUrl}/auth/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -92,12 +93,9 @@ export class ApiClient {
     data?: any,
     options: RequestInit = {}
   ): Promise<T> {
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.error('NEXT_PUBLIC_API_URL is not defined');
-      throw new Error('API URL is not configured');
-    }
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sienna-cod-887616.hostingersite.com/api";
     
-    const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
+    const url = `${apiUrl}${endpoint}`;
     console.log(`[API] ${method} ${url}`, { data });
     
     // Create headers with CORS support
