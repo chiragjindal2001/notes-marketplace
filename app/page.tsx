@@ -208,11 +208,7 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">500+</div>
-              <div className="text-gray-600">Notes Available</div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">10k+</div>
               <div className="text-gray-600">Happy Students</div>
@@ -286,7 +282,7 @@ export default function HomePage() {
                 <Card key={note.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="p-0">
                     {(() => {
-                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "http://localhost:8080";
+                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "https://sienna-cod-887616.hostingersite.com";
                       let imageUrl = note.preview_image || "/placeholder.svg";
                       if (imageUrl && !imageUrl.startsWith('http')) {
                         imageUrl = `${BACKEND_BASE_URL}${imageUrl}`;
