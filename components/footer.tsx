@@ -22,9 +22,6 @@ export function Footer() {
               <Link href="/browse" className="block text-gray-400 hover:text-white transition-colors">
                 Browse Notes
               </Link>
-              <Link href="/contact" className="block text-gray-400 hover:text-white transition-colors">
-                Contact Us
-              </Link>
               <Link href="/admin" className="block text-gray-400 hover:text-white transition-colors">
                 Admin Panel
               </Link>
@@ -59,22 +56,35 @@ export function Footer() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-gray-400">
                 <Mail className="h-4 w-4" />
-                <span>hello@civilstudies.com</span>
+                <span>thecivilstudies@gmail.com</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <span>+91 7027049101</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <MapPin className="h-4 w-4" />
-                <span>New York, NY</span>
+                <span>Zirakpur, Punjab</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 Civil Studies. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center text-gray-400">
+            <p>&copy; 2024 Civil Studies. All rights reserved.</p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link href="/terms" className="hover:text-white transition-colors">
+                Terms & Conditions
+              </Link>
+              <Link href="/refund-policy" className="hover:text-white transition-colors">
+                Refund Policy
+              </Link>
+              <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

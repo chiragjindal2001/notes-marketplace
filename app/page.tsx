@@ -286,7 +286,7 @@ export default function HomePage() {
                 <Card key={note.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="p-0">
                     {(() => {
-                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "https://sienna-cod-887616.hostingersite.com/";
+                      const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || "http://localhost:8080";
                       let imageUrl = note.preview_image || "/placeholder.svg";
                       if (imageUrl && !imageUrl.startsWith('http')) {
                         imageUrl = `${BACKEND_BASE_URL}${imageUrl}`;
@@ -347,17 +347,9 @@ export default function HomePage() {
           <p className="text-xl mb-8 opacity-90">
             Join thousands of students who have improved their grades with our premium notes
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Button asChild size="lg" variant="secondary">
               <LoadingLink href="/browse">Start Browsing</LoadingLink>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="text-white border-white hover:bg-white hover:text-blue-600 bg-transparent"
-            >
-              <LoadingLink href="/contact">Contact Us</LoadingLink>
             </Button>
           </div>
         </div>
