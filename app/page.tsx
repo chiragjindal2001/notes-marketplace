@@ -210,7 +210,7 @@ export default function HomePage() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">10k+</div>
+              <div className="text-3xl font-bold text-purple-600">10K+</div>
               <div className="text-gray-600">Happy Students</div>
             </div>
             <div className="text-center">
