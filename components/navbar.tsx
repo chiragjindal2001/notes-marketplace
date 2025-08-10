@@ -34,6 +34,7 @@ export function Navbar() {
     { name: "Home", href: "/" },
     { name: "Browse Notes", href: "/browse" },
     { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ]
 
   const isActive = (href: string) => {

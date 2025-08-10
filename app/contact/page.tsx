@@ -1,282 +1,211 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-
-// Add import
-import { contactApi } from "@/lib/api"
+import { Badge } from "@/components/ui/badge"
+import { Phone, Mail, MapPin, Clock, MessageCircle, Users } from "lucide-react"
 
 export default function ContactPage() {
-  const { toast } = useToast()
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  // Load user data from localStorage on component mount
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      try {
-        const user = JSON.parse(userData)
-        if (user.name && user.email) {
-          setFormData(prev => ({
-            ...prev,
-            name: user.name,
-            email: user.email
-          }))
-          setIsAuthenticated(true)
-        }
-      } catch (error) {
-        console.error('Error parsing user data:', error)
-      }
-    }
-  }, [])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
-
-  // Replace handleSubmit function:
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const response = await contactApi.submit({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
-      })
-
-      if (response.success) {
-        toast({
-          title: "Message sent!",
-          description: "Thank you for your message. We'll get back to you soon.",
-        })
-        // Only reset subject and message, keep name and email
-        setFormData(prev => ({ 
-          ...prev, 
-          subject: "", 
-          message: "" 
-        }))
-      } else {
-        throw new Error(response.message || "Failed to send message")
-      }
-    } catch (error: any) {
-      console.error("Contact form error:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send message. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Have questions about our notes? Need help with your order? We're here to help!
+      
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            Contact Us
+          </h1>
+          <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            Get in touch with us for any questions about our UPSC study materials
           </p>
         </div>
+      </section>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Send us a message</CardTitle>
-                {isAuthenticated && (
-                  <p className="text-sm text-gray-600">
-                    Your contact information has been pre-filled from your account.
-                  </p>
-                )}
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Name</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Your full name"
-                        readOnly={isAuthenticated}
-                        className={isAuthenticated ? "bg-gray-50 cursor-not-allowed" : ""}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="your@email.com"
-                        readOnly={isAuthenticated}
-                        className={isAuthenticated ? "bg-gray-50 cursor-not-allowed" : ""}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input
-                      id="subject"
-                      name="subject"
-                      required
-                      value={formData.subject}
-                      onChange={handleInputChange}
-                      placeholder="What's this about?"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      required
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      placeholder="Tell us how we can help you..."
-                      rows={6}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>Sending...</>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send Message
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Contact Information */}
+      {/* Main Content */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
-            <Card>
+            
+            {/* Contact Information */}
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle>Get in touch</CardTitle>
+                <CardTitle className="flex items-center text-2xl font-bold text-gray-900">
+                  <MessageCircle className="w-6 h-6 mr-3 text-blue-600" />
+                  Get in Touch
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="h-6 w-6 text-blue-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-gray-600">thecivilstudies@gmail.com</p>
-                    <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
+                <p className="text-gray-700 leading-relaxed">
+                  We're here to help you with any questions about our UPSC handwritten notes, 
+                  study materials, or any other inquiries. Feel free to reach out to us through 
+                  any of the following channels.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Phone Contact */}
+                  <div className="flex items-start space-x-4 p-6 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Phone className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-blue-800 mb-2">Phone</h3>
+                      <p className="text-blue-700 font-medium text-lg">+91 7027049101</p>
+                      <p className="text-blue-600 text-sm mt-1">Call us for immediate assistance</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-4">
-                  <Phone className="h-6 w-6 text-blue-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Phone</h3>
-                    <p className="text-gray-600">+91 7027049101</p>
-                    <p className="text-sm text-gray-500">Mon-Fri, 9am-6pm EST</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <MapPin className="h-6 w-6 text-blue-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Address</h3>
-                    <p className="text-gray-600">
-                      123 Education Street
-                      <br />
-                      Zirakpur, Punjab 10001
-                      <br />
-                      United States
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <Clock className="h-6 w-6 text-blue-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Business Hours</h3>
-                    <p className="text-gray-600">
-                      Monday - Friday: 9:00 AM - 6:00 PM EST
-                      <br />
-                      Saturday: 10:00 AM - 4:00 PM EST
-                      <br />
-                      Sunday: Closed
-                    </p>
+                  {/* Email Contact */}
+                  <div className="flex items-start space-x-4 p-6 bg-green-50 rounded-lg border-l-4 border-green-400">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <Mail className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-800 mb-2">Email</h3>
+                      <p className="text-green-700 font-medium text-lg">thecivilstudies@gmail.com</p>
+                      <p className="text-green-600 text-sm mt-1">Send us an email anytime</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Contact Details */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Phone Card */}
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Phone className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Call Us</h3>
+                  <p className="text-blue-600 font-medium text-lg mb-2">+91 7027049101</p>
+                  <p className="text-gray-600 text-sm">Available for immediate support</p>
+                </CardContent>
+              </Card>
+
+              {/* Email Card */}
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Email Us</h3>
+                  <p className="text-green-600 font-medium text-lg mb-2">thecivilstudies@gmail.com</p>
+                  <p className="text-gray-600 text-sm">We'll respond within 24 hours</p>
+                </CardContent>
+              </Card>
+
+              {/* Location Card */}
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-8 h-8 text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Location</h3>
+                  <p className="text-purple-600 font-medium text-lg mb-2">Zirakpur, Punjab</p>
+                  <p className="text-gray-600 text-sm">Serving students nationwide</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Response Time */}
+            <Card className="border-0 shadow-lg bg-yellow-50 border-l-4 border-yellow-400">
               <CardHeader>
-                <CardTitle>Frequently Asked Questions</CardTitle>
+                <CardTitle className="flex items-center text-2xl font-bold text-yellow-800">
+                  <Clock className="w-6 h-6 mr-3 text-yellow-600" />
+                  Response Time
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">How do I download my notes after purchase?</h4>
-                  <p className="text-gray-600 text-sm">
-                    After successful payment, you'll receive an email with download links to all your purchased notes
-                    within 5 minutes.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Can I get a refund if I'm not satisfied?</h4>
-                  <p className="text-gray-600 text-sm">
-                    We offer a 7-day money-back guarantee. If you're not satisfied with your purchase, contact us for a
-                    full refund.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Do you offer bulk discounts?</h4>
-                  <p className="text-gray-600 text-sm">
-                    Yes! Contact us for special pricing on bulk orders of 10 or more note sets.
-                  </p>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex items-center space-x-3">
+                    <Phone className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <h4 className="font-semibold text-blue-800">Phone Calls</h4>
+                      <p className="text-blue-700 text-sm">Immediate response during business hours</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Mail className="w-5 h-5 text-green-600" />
+                    <div>
+                      <h4 className="font-semibold text-green-800">Email</h4>
+                      <p className="text-green-700 text-sm">Response within 24 hours</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* What We Can Help With */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center text-2xl font-bold text-gray-900">
+                  <Users className="w-6 h-6 mr-3 text-purple-600" />
+                  How Can We Help You?
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">Study Material Queries</h4>
+                      <p className="text-gray-600 text-sm">Questions about our handwritten notes and study materials</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">Payment & Orders</h4>
+                      <p className="text-gray-600 text-sm">Help with payment processing and order status</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">Technical Support</h4>
+                      <p className="text-gray-600 text-sm">Download issues or technical problems</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 bg-orange-600 rounded-full mt-2"></div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">General Inquiries</h4>
+                      <p className="text-gray-600 text-sm">Any other questions about our services</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contact CTA */}
+            <div className="text-center p-8 bg-blue-600 rounded-lg text-white">
+              <h2 className="text-2xl font-bold mb-4">Ready to Get Started?</h2>
+              <p className="text-blue-100 mb-6">
+                Don't hesitate to reach out to us. We're here to help you succeed in your UPSC preparation journey.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="tel:+917027049101" 
+                  className="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Now
+                </a>
+                <a 
+                  href="mailto:thecivilstudies@gmail.com" 
+                  className="inline-flex items-center justify-center px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Email
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </div>
