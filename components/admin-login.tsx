@@ -117,15 +117,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
             </Button>
           </form>
 
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Demo credentials:</strong>
-              <br />
-              Username: admin
-              <br />
-              Password: password
-            </p>
-          </div>
+        
             <Button asChild variant="outline" className="w-full mt-4 bg-white">
               <Link href="/">Go to Home</Link>
             </Button>
