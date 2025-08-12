@@ -104,6 +104,15 @@ export function ManageNotes() {
           setNotes(response.data)
           // DEBUG: Log notes to inspect preview/preview_image
           console.log('Fetched notes:', response.data)
+          // Debug: Check is_active status
+          response.data.forEach((note: any, index: number) => {
+            console.log(`Note ${index + 1}:`, {
+              id: note.id,
+              title: note.title,
+              is_active: note.is_active,
+              status: note.status
+            })
+          })
         }
       } catch (error) {
         console.error("Failed to fetch notes:", error)
@@ -311,7 +320,7 @@ export function ManageNotes() {
                   <TableHead>Price (₹)</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead>Downloads</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Active Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -324,7 +333,7 @@ export function ManageNotes() {
                 </TableRow>
               )}
               {filteredNotes.map((note) => (
-                <TableRow key={note.id} className={note.is_active === false ? "opacity-60" : ""}>
+                <TableRow key={note.id} className={note.is_active === false ? "opacity-60 bg-gray-50" : ""}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Image
@@ -358,15 +367,12 @@ export function ManageNotes() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={note.status === "active" ? "default" : "secondary"}
+                      variant={note.is_active === false ? "destructive" : "default"}
                       className="cursor-pointer"
                       onClick={() => toggleStatus(note.id)}
                     >
-                      {note.status}
+                      {note.is_active === false ? "Inactive" : "Active"}
                     </Badge>
-                    {note.is_active === false && (
-                      <Badge variant="destructive" className="ml-2">Inactive</Badge>
-                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
