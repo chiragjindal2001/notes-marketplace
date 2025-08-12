@@ -32,7 +32,7 @@ export default function BrowsePage() {
   const { addItem } = useCart()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  const subjects = ["All", "History", "Geography", "Polity", "Economics", "Environment", "Science & Technology", "Current Affairs"]
+  const subjects = ["All", "History", "Geography", "Polity", "Economics", "Environment", "Science & Technology", "Current Affairs", "General Studies"]
   const sortOptions = [
     { value: "popular", label: "Most Popular" },
     { value: "rating", label: "Highest Rated" },
