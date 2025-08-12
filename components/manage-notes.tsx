@@ -220,7 +220,10 @@ export function ManageNotes() {
       try {
         const response = await adminApi.deleteNote(id)
         if (response.success) {
-          setNotes(notes.filter((note) => note.id !== id))
+          // Update the note's is_active status instead of removing from array
+          setNotes(notes.map((note) => 
+            note.id === id ? { ...note, is_active: false } : note
+          ))
           toast({
             title: "Note deleted",
             description: "The note has been successfully deleted.",
@@ -373,14 +376,25 @@ export function ManageNotes() {
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(note)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleActive(note.id, note.is_active)}
-                        className={note.is_active ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
-                      >
-                        {note.is_active ? <Trash2 className="h-4 w-4" /> : <span className="font-bold">↺</span>}
-                      </Button>
+                      {note.is_active ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(note.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleActive(note.id, note.is_active)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <span className="font-bold">↺</span>
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

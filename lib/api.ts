@@ -205,6 +205,7 @@ export const adminApi = {
   deleteNote: (id: number) =>
     apiRequest(`/admin/notes/${id}`, {
       method: "DELETE",
+      body: JSON.stringify({ is_active: false }),
     }),
 
   updateNoteStatus: (id: number, status: string) =>
