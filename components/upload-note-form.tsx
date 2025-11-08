@@ -202,7 +202,7 @@ export function UploadNoteForm() {
                   <Input
                     id="noteFile"
                     type="file"
-                    accept=".pdf"
+                    accept=".pdf, .zip"
                     onChange={(e) => handleFileChange(e, "noteFile")}
                     className="hidden"
                   />
