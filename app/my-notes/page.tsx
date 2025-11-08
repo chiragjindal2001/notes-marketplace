@@ -97,13 +97,36 @@ export default function MyNotesPage() {
         return;
       }
       const blob = await res.blob();
-      // Try to get filename from Content-Disposition header
-      let filename = note.title ? note.title.replace(/\s+/g, '-').toLowerCase() + '-notes.pdf' : 'note.pdf';
-      const disposition = res.headers.get('Content-Disposition');
-      if (disposition && disposition.indexOf('filename=') !== -1) {
-        const match = disposition.match(/filename="?([^";]+)"?/);
-        if (match && match[1]) filename = match[1];
-      }
+      // Try to get filename from Content-Disposition header// Check Content-Disposition header from PHP response
+const disposition = res.headers.get('Content-Disposition');
+if (disposition && disposition.includes('filename=')) {
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    if (match && match[1]) {
+        filename = match[1];
+    } else {
+        // fallback if no filename found
+        const contentType = res.headers.get('Content-Type');
+        if (contentType === 'application/zip')
+            filename += '.zip';
+        else
+            filename += '.pdf';
+    }
+} else {
+    // fallback if header not found
+    const contentType = res.headers.get('Content-Type');
+    if (contentType === 'application/zip')
+        filename += '.zip';
+    else
+        filename += '.pdf';
+}
+
+      
+     // let filename = note.title ? note.title.replace(/\s+/g, '-').toLowerCase() + '-notes.pdf' : 'note.pdf';
+     // const disposition = res.headers.get('Content-Disposition');
+   //   if (disposition && disposition.indexOf('filename=') !== -1) {
+    //    const match = disposition.match(/filename="?([^";]+)"?/);
+     //   if (match && match[1]) filename = match[1];
+     // }
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
