@@ -103,18 +103,44 @@ export default function MyNotesPage() {
       }
       const blob = await res.blob();
       // Try to get filename from Content-Disposition header
-      let filename = note.title ? note.title.replace(/\s+/g, '-').toLowerCase() + '-notes.pdf' : 'note.pdf';
-      const disposition = res.headers.get('Content-Disposition') || res.headers.get('content-disposition');
-      if (disposition && disposition.indexOf('filename=') !== -1) {
-        const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^\";]+)"?/i) || disposition.match(/filename="?([^";]+)"?/);
-        if (match && match[1]) {
-          try {
-            filename = decodeURIComponent(match[1].replace(/(^"|"$)/g, ""));
-          } catch {
-            filename = match[1].replace(/(^"|"$)/g, "");
-          }
-        }
-      }
+      // --- robust filename resolution (replace your current block) ---
+let filename = note.title
+  ? note.title.replace(/\s+/g, '-').toLowerCase() + '-notes'
+  : 'note';
+
+// Prefer filename from Content-Disposition if present (handle filename* and filename)
+const disposition = res.headers.get('Content-Disposition') || res.headers.get('content-disposition');
+if (disposition) {
+  // match filename*=UTF-8''... or filename="..."
+  const filenameStarMatch = disposition.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
+  const filenameMatch = disposition.match(/filename="?([^\";]+)"?/i);
+
+  if (filenameStarMatch && filenameStarMatch[1]) {
+    try {
+      filename = decodeURIComponent(filenameStarMatch[1].trim().replace(/^"|"$/g, ''));
+    } catch {
+      filename = filenameStarMatch[1].trim().replace(/^"|"$/g, '');
+    }
+  } else if (filenameMatch && filenameMatch[1]) {
+    filename = filenameMatch[1].trim().replace(/^"|"$/g, '');
+  }
+}
+
+// If filename still doesn't contain an extension, infer from Content-Type
+const contentType = res.headers.get('Content-Type') || '';
+const hasExt = /\.[a-z0-9]+$/i.test(filename);
+if (!hasExt) {
+  if (contentType.includes('zip')) {
+    filename += '.zip';
+  } else if (contentType.includes('pdf')) {
+    filename += '.pdf';
+  } else {
+    // fallback: try to preserve original filename from downloaded blob URL if available
+    // many servers include extension in disposition; if not, append blob's guessed extension (rare)
+    filename += '.bin';
+  }
+}
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
