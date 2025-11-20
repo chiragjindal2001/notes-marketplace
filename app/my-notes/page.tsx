@@ -28,6 +28,7 @@ export default function MyNotesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("All")
   const { toast } = useToast();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Extract unique subjects from notes
   const subjects = ["All", ...Array.from(new Set(notes.map((n) => n.subject)))]
@@ -83,6 +84,8 @@ export default function MyNotesPage() {
         toast({ title: "Error", description: "Note ID missing.", variant: "destructive" });
         return;
       }
+      setIsDownloading(true);
+
       const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "https://sienna-cod-887616.hostingersite.com/";
       const userToken = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
       const res = await fetch(`${backendUrl}api/downloads/${note.id}`, {
@@ -116,7 +119,9 @@ export default function MyNotesPage() {
       }, 100);
     } catch (e) {
       toast({ title: "Download Failed", description: "An error occurred while downloading.", variant: "destructive" });
-    }
+    } finally {
+    setIsDownloading(false); // <--- ADD THIS
+  }
   };
 
   return (
@@ -199,9 +204,14 @@ export default function MyNotesPage() {
                     </div>
                     <CardTitle className="mb-2 line-clamp-2 text-base md:text-lg truncate">{note.title}</CardTitle>
                     <div className="flex gap-2 mt-4">
-                      <Button className="flex-1" onClick={() => handleDownload(note)}>
-                        <Download className="h-4 w-4 mr-2" /> Download
-                      </Button>
+                      <Button className="flex-1" onClick={() => handleDownload(note)} disabled={isDownloading}>
+  {isDownloading ? "Downloading..." : (
+    <>
+      <Download className="h-4 w-4 mr-2" /> Download
+    </>
+  )}
+</Button>
+
                     </div>
                   </CardContent>
                 </Card>
