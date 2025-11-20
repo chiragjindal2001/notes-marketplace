@@ -28,7 +28,8 @@ export default function MyNotesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("All")
   const { toast } = useToast();
-  const [isDownloading, setIsDownloading] = useState(false);
+  // per-note downloading id (null = none)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // Extract unique subjects from notes
   const subjects = ["All", ...Array.from(new Set(notes.map((n) => n.subject)))]
@@ -84,7 +85,8 @@ export default function MyNotesPage() {
         toast({ title: "Error", description: "Note ID missing.", variant: "destructive" });
         return;
       }
-      setIsDownloading(true);
+      // set the downloading id to this note so only this card shows "Downloading..."
+      setDownloadingId(note.id);
 
       const backendUrl = process.env.NEXT_PUBLIC_PHP_API_URL || "https://sienna-cod-887616.hostingersite.com/";
       const userToken = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null;
@@ -102,10 +104,16 @@ export default function MyNotesPage() {
       const blob = await res.blob();
       // Try to get filename from Content-Disposition header
       let filename = note.title ? note.title.replace(/\s+/g, '-').toLowerCase() + '-notes.pdf' : 'note.pdf';
-      const disposition = res.headers.get('Content-Disposition');
+      const disposition = res.headers.get('Content-Disposition') || res.headers.get('content-disposition');
       if (disposition && disposition.indexOf('filename=') !== -1) {
-        const match = disposition.match(/filename="?([^";]+)"?/);
-        if (match && match[1]) filename = match[1];
+        const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^\";]+)"?/i) || disposition.match(/filename="?([^";]+)"?/);
+        if (match && match[1]) {
+          try {
+            filename = decodeURIComponent(match[1].replace(/(^"|"$)/g, ""));
+          } catch {
+            filename = match[1].replace(/(^"|"$)/g, "");
+          }
+        }
       }
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -120,8 +128,9 @@ export default function MyNotesPage() {
     } catch (e) {
       toast({ title: "Download Failed", description: "An error occurred while downloading.", variant: "destructive" });
     } finally {
-    setIsDownloading(false); // <--- ADD THIS
-  }
+      // clear downloading id no matter what
+      setDownloadingId(null);
+    }
   };
 
   return (
@@ -204,13 +213,17 @@ export default function MyNotesPage() {
                     </div>
                     <CardTitle className="mb-2 line-clamp-2 text-base md:text-lg truncate">{note.title}</CardTitle>
                     <div className="flex gap-2 mt-4">
-                      <Button className="flex-1" onClick={() => handleDownload(note)} disabled={isDownloading}>
-  {isDownloading ? "Downloading..." : (
-    <>
-      <Download className="h-4 w-4 mr-2" /> Download
-    </>
-  )}
-</Button>
+                      <Button
+                        className="flex-1"
+                        onClick={() => handleDownload(note)}
+                        disabled={downloadingId === note.id}
+                      >
+                        {downloadingId === note.id ? "Downloading..." : (
+                          <>
+                            <Download className="h-4 w-4 mr-2" /> Download
+                          </>
+                        )}
+                      </Button>
 
                     </div>
                   </CardContent>
@@ -223,4 +236,4 @@ export default function MyNotesPage() {
       <Footer />
     </div>
   )
-} 
+}
