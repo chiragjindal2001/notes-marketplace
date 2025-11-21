@@ -8,42 +8,29 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, Download, Mail } from "lucide-react"
 import { adminApi } from "@/lib/api"
 
-// Mock data
-// const mockOrders = [
-//   {
-//     id: "ORD-001",
-//     customerEmail: "john@example.com",
-//     customerName: "John Doe",
-//     items: ["Advanced Calculus Notes", "Physics Mechanics"],
-//     total: 28.98,
-//     status: "completed",
-//     date: "2024-01-15",
-//     downloadCount: 3,
-//   },
-//   {
-//     id: "ORD-002",
-//     customerEmail: "sarah@example.com",
-//     customerName: "Sarah Smith",
-//     items: ["Organic Chemistry Complete"],
-//     total: 19.99,
-//     status: "completed",
-//     date: "2024-01-14",
-//     downloadCount: 1,
-//   },
-//   {
-//     id: "ORD-003",
-//     customerEmail: "mike@example.com",
-//     customerName: "Mike Johnson",
-//     items: ["Data Structures & Algorithms"],
-//     total: 18.99,
-//     status: "pending",
-//     date: "2024-01-13",
-//     downloadCount: 0,
-//   },
-// ]
+interface NoteItem {
+  note_id?: string | number
+  title?: string
+  name?: string
+  note_title?: string
+  price?: number
+  [key: string]: any
+}
+
+interface Order {
+  id?: string
+  customerEmail?: string
+  customerName?: string
+  items?: Array<string | NoteItem>
+  total?: number | null
+  status?: string
+  date?: string
+  downloadCount?: number
+  [key: string]: any
+}
 
 export function OrdersTable() {
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -56,10 +43,17 @@ export function OrdersTable() {
           limit: 50,
         })
         if (response.success && response.data) {
-          setOrders(response.data.items)
+          // normalize to array to avoid runtime issues
+          const items = response.data.items ?? []
+          setOrders(items)
+          // helpful debug log to inspect shape
+          console.log("Fetched orders:", items)
+        } else {
+          setOrders([])
         }
       } catch (error) {
         console.error("Failed to fetch orders:", error)
+        setOrders([])
       } finally {
         setLoading(false)
       }
@@ -68,14 +62,18 @@ export function OrdersTable() {
     fetchOrders()
   }, [])
 
-  const filteredOrders = orders.filter(
-    (order) =>
-      order?.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order?.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order?.id?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const normalizedSearch = searchTerm.trim().toLowerCase()
 
-  const getStatusColor = (status: string) => {
+  const filteredOrders = orders.filter((order) => {
+    if (!normalizedSearch) return true
+    return (
+      (order?.customerEmail || "").toLowerCase().includes(normalizedSearch) ||
+      (order?.customerName || "").toLowerCase().includes(normalizedSearch) ||
+      (order?.id || "").toLowerCase().includes(normalizedSearch)
+    )
+  })
+
+  const getStatusColor = (status?: string) => {
     switch (status) {
       case "completed":
         return "default"
@@ -86,6 +84,12 @@ export function OrdersTable() {
       default:
         return "secondary"
     }
+  }
+
+  const renderItemText = (item: string | NoteItem) => {
+    if (typeof item === "string") return item
+    // Prefer common title/name fields
+    return item?.title ?? item?.name ?? item?.note_title ?? JSON.stringify(item)
   }
 
   return (
@@ -126,37 +130,65 @@ export function OrdersTable() {
                   </TableCell>
                 </TableRow>
               )}
+
+              {!loading && filteredOrders.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <p className="text-gray-500">No orders found.</p>
+                  </TableCell>
+                </TableRow>
+              )}
+
               {!loading &&
-                filteredOrders.map((order: any) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
+                filteredOrders.map((order) => (
+                  <TableRow key={order.id ?? Math.random().toString(36).slice(2)}>
+                    <TableCell className="font-medium">{order.id ?? "-"}</TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{order.customerName}</div>
+                        <div className="font-medium">{order.customerName ?? "-"}</div>
                         <div className="text-sm text-gray-500 flex items-center gap-1">
                           <Mail className="h-3 w-3" />
-                          {order.customerEmail}
+                          {order.customerEmail ?? "-"}
                         </div>
                       </div>
                     </TableCell>
+
                     <TableCell>
                       <div className="space-y-1">
-                        {order.items?.map((item: any, index: number) => (
-                          <div key={index} className="text-sm">
-                            {item}
-                          </div>
-                        ))}
+                        {Array.isArray(order.items) && order.items.length > 0 ? (
+                          order.items.map((item, index) => {
+                            const key = typeof item === "object" ? item.note_id ?? index : index
+                            const text = renderItemText(item)
+                            return (
+                              <div key={key} className="text-sm">
+                                {text}
+                                {typeof item === "object" && item?.price != null && (
+                                  <span className="ml-2 text-xs text-gray-500">— ₹{item.price}</span>
+                                )}
+                              </div>
+                            )
+                          })
+                        ) : (
+                          <div className="text-sm text-gray-500">—</div>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">${order.total?.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
+
+                    <TableCell className="font-medium">
+                      {/* show total safely */}
+                      ₹{typeof order.total === "number" ? order.total.toFixed(2) : "0.00"}
                     </TableCell>
-                    <TableCell>{order.date}</TableCell>
+
+                    <TableCell>
+                      <Badge variant={getStatusColor(order.status)}>{order.status ?? "unknown"}</Badge>
+                    </TableCell>
+
+                    <TableCell>{order.date ?? "-"}</TableCell>
+
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Download className="h-4 w-4 text-gray-400" />
-                        {order.downloadCount}
+                        {typeof order.downloadCount === "number" ? order.downloadCount : 0}
                       </div>
                     </TableCell>
                   </TableRow>
