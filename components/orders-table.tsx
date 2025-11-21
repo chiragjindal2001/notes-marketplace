@@ -42,12 +42,39 @@ export function OrdersTable() {
           page: 1,
           limit: 50,
         })
+
         if (response.success && response.data) {
-          // normalize to array to avoid runtime issues
-          const items = response.data.items ?? []
-          setOrders(items)
-          // helpful debug log to inspect shape
-          console.log("Fetched orders:", items)
+          const rawItems: any[] = response.data.items ?? []
+
+          // Normalize backend items (snake_case) to the UI model (camelCase)
+          const normalized: Order[] = rawItems.map((o: any) => {
+            const normalizedItems: NoteItem[] = Array.isArray(o.items)
+              ? o.items.map((it: any) => ({
+                  ...it,
+                  // convert price string to number if possible
+                  price: it?.price != null ? parseFloat(String(it.price)) : undefined,
+                }))
+              : []
+
+            return {
+              id: o.id ?? o.order_id ?? "-",
+              customerEmail: o.customer_email ?? o.customerEmail ?? "",
+              customerName: o.customer_name ?? o.customerName ?? "",
+              // convert total_amount string to number
+              total: o.total_amount != null ? parseFloat(String(o.total_amount)) : typeof o.total === "number" ? o.total : 0,
+              status: o.status ?? "unknown",
+              // use created_at as date
+              date: o.created_at ?? o.date ?? "-",
+              items: normalizedItems,
+              // backend may not provide downloads, default to 0
+              downloadCount: o.download_count != null ? Number(o.download_count) : 0,
+              // keep raw object for debugging if needed
+              raw: o,
+            }
+          })
+
+          setOrders(normalized)
+          console.log("Fetched & normalized orders:", normalized)
         } else {
           setOrders([])
         }
@@ -80,7 +107,11 @@ export function OrdersTable() {
       case "pending":
         return "secondary"
       case "failed":
+      case "error":
         return "destructive"
+      case "paid":
+        // map paid to default or another variant if you like
+        return "default"
       default:
         return "secondary"
     }
@@ -88,7 +119,6 @@ export function OrdersTable() {
 
   const renderItemText = (item: string | NoteItem) => {
     if (typeof item === "string") return item
-    // Prefer common title/name fields
     return item?.title ?? item?.name ?? item?.note_title ?? JSON.stringify(item)
   }
 
@@ -143,6 +173,7 @@ export function OrdersTable() {
                 filteredOrders.map((order) => (
                   <TableRow key={order.id ?? Math.random().toString(36).slice(2)}>
                     <TableCell className="font-medium">{order.id ?? "-"}</TableCell>
+
                     <TableCell>
                       <div>
                         <div className="font-medium">{order.customerName ?? "-"}</div>
@@ -163,7 +194,7 @@ export function OrdersTable() {
                               <div key={key} className="text-sm">
                                 {text}
                                 {typeof item === "object" && item?.price != null && (
-                                  <span className="ml-2 text-xs text-gray-500">— ₹{item.price}</span>
+                                  <span className="ml-2 text-xs text-gray-500">— ₹{Number(item.price).toFixed(2)}</span>
                                 )}
                               </div>
                             )
@@ -175,8 +206,7 @@ export function OrdersTable() {
                     </TableCell>
 
                     <TableCell className="font-medium">
-                      {/* show total safely */}
-                      ₹{typeof order.total === "number" ? order.total.toFixed(2) : "0.00"}
+                      ₹{typeof order.total === "number" ? order.total.toFixed(2) : Number(order.total || 0).toFixed(2)}
                     </TableCell>
 
                     <TableCell>
